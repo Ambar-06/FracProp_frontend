@@ -210,7 +210,7 @@ export default function Signup() {
                 onClick={togglePasswordVisibility}
                 className="absolute inset-y-0 right-3 flex items-center"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? '🙈' : '👁'}
               </button>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default function Signup() {
                 onClick={toggleConfirmPasswordVisibility}
                 className="absolute inset-y-0 right-3 flex items-center"
               >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showConfirmPassword ? '🙈' : '👁'}
               </button>
             </div>
           </div>
@@ -242,6 +242,7 @@ export default function Signup() {
           >
             {loading ? "Signing Up..." : "Signup"}
           </button>
+          <p className='mt-4 text-center text-sm'>Already have an account? <a href='/login' className='text-blue-500 hover:underline'>Login here</a></p>
         </form>
       </div>
     </div>
