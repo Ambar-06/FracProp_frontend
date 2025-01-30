@@ -73,15 +73,12 @@ const Home = () => {
                 </div>
                 {/* </nav> */}
 
+
                 {/* Burger Menu (Visible only on small screens) */}
-                <button
-                    className="lg:hidden text-white"
-                    onClick={handleMenuToggle}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-black" fill="none" viewBox="0 0 24 24" stroke="black">
+                <button className="lg:hidden text-black" onClick={handleMenuToggle}>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="black">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
-
                 </button>
 
                 {/* Menu Options (Visible only on large screens) */}
@@ -125,13 +122,15 @@ const Home = () => {
                 </div>
             </nav>
 
-            {/* Sliding Menu (Visible only on small screens) */}
-            <div className={`fixed top-0 right-0 h-full w-64 bg-white text-blue transform transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "translate-x-full"} z-50 lg:hidden`}>
+
+            {/* Sliding Menu (Now Working) */}
+            <div className={`fixed top--2 right-0 h-full w-64 bg-white text-black shadow-lg transform transition-transform duration-300 ease-in-out ${isMenuOpen ? "translate-x-0" : "translate-x-full"} z-50 lg:hidden`}>
                 <div className="p-4">
-                    <button onClick={() => router.push("/profile")} className="block w-full text-left py-2 hover:bg-gray-700">View/Edit Profile</button>
-                    <button onClick={() => router.push("/properties")} className="block w-full text-left py-2 hover:bg-gray-700">View Properties</button>
-                    <button onClick={() => router.push("/settings")} className="block w-full text-left py-2 hover:bg-gray-700">Settings</button>
-                    <button onClick={logout} className="block w-full text-left py-2 hover:bg-gray-700">Logout</button>
+                    <button onClick={handleMenuToggle} className="absolute top-4 right-4 text-black">✖</button>
+                    <button onClick={() => router.push("/profile")} className="block w-full text-left py-2 hover:bg-gray-100">Profile</button>
+                    <button onClick={() => router.push("/properties")} className="block w-full text-left py-2 hover:bg-gray-100">Properties</button>
+                    <button onClick={() => router.push("/settings")} className="block w-full text-left py-2 hover:bg-gray-100">Settings</button>
+                    <button onClick={logout} className="block w-full text-left py-2 hover:bg-gray-100">Logout</button>
                 </div>
             </div>
 
@@ -140,8 +139,11 @@ const Home = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={handleMenuToggle}></div>
             )}
 
-            {/* Rest of the content */}
-            <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 mt-20">Welcome, {user?.first_name} 👋</h1>
+            {/* Main Content (Shifted Below Navbar) */}
+            <div className="p-8 space-y-2 pt-27">
+                <h1 className="text-3xl font-bold text-center text-gray-800">Welcome, {user?.first_name} 👋</h1>
+            </div>
+
 
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
