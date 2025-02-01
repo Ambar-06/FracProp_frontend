@@ -1,16 +1,15 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
-import PhoneInput from 'react-phone-number-input'
-import 'react-phone-number-input/style.css'
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import { Eye, EyeOff } from "lucide-react";
 
-const Alert = ({ message }) => {
-  return (
-    <div className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-4 rounded-md shadow-md">
-      {message}
-    </div>
-  );
-};
+const Alert = ({ message }) => (
+  <div className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-4 rounded-md shadow-md">
+    {message}
+  </div>
+);
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -21,10 +20,12 @@ export default function Signup() {
     phone_number: "",
     first_name: "",
     last_name: "",
-    country_code: "+91", // Default Indian country code
-    signupMethod: "email", // Default signup method
+    country_code: "+91",
+    signupMethod: "email",
   });
-  
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -34,18 +35,15 @@ export default function Signup() {
   };
 
   const handlePhoneChange = (value) => {
-    setFormData((prev) => ({
-      ...prev,
-      phone_number: value,
-    }));
+    setFormData((prev) => ({ ...prev, phone_number: value }));
   };
 
   const handleTabChange = (method) => {
     setFormData((prev) => ({
       ...prev,
       signupMethod: method,
-      email: "", // Clear email if switching to phone signup
-      phone_number: "", // Clear phone number if switching to email signup
+      email: "",
+      phone_number: "",
     }));
   };
 
@@ -54,7 +52,7 @@ export default function Signup() {
       setError("Password must be at least 8 characters");
       return false;
     }
-    if (formData.signupMethod === "email" && !formData.email.includes('@')) {
+    if (formData.signupMethod === "email" && !formData.email.includes("@")) {
       setError("Invalid email address");
       return false;
     }
@@ -67,22 +65,19 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     if (!validateForm()) return;
-  
+
     setLoading(true);
     setError(null);
-  
-    // Prepare form data
+
     const cleanedFormData = {
       ...formData,
       email: formData.signupMethod === "email" ? formData.email : null,
       phone_number: formData.signupMethod === "phone_number" ? formData.phone_number : null,
       country_code: formData.signupMethod === "phone_number" ? formData.country_code : null,
     };
-  
+
     try {
-      console.log(process.env.NEXT_PUBLIC_BACKEND_BASE_URL, "))))))")
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/auth/signup`, {
         method: "POST",
         headers: {
@@ -92,7 +87,7 @@ export default function Signup() {
       });
 
       const data = await response.json();
-  
+
       if (response.ok) {
         console.log("User signed up successfully:", data);
       } else {
@@ -113,17 +108,18 @@ export default function Signup() {
       setLoading(false);
     }
   };
-  
+
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev); // ✅ Fix: Toggle function
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword((prev) => !prev);
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
         <h2 className="text-2xl font-bold mb-4">Signup</h2>
-        
-        {/* Display error alert */}
+
         {error && <Alert message={error} />}
-        
-        {/* Tab navigation for email/phone signup */}
+
         <div className="mb-4 flex space-x-4 border-b">
           <button
             className={`py-2 px-4 ${formData.signupMethod === "email" ? "border-b-2 border-blue-500" : ""}`}
@@ -140,42 +136,33 @@ export default function Signup() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Common Fields */}
           <div className="mb-4">
-            <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
-              First Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700">First Name</label>
             <input
               type="text"
-              id="first_name"
               name="first_name"
               value={formData.first_name}
               onChange={handleChange}
               className="w-full mt-1 p-2 border border-gray-300 rounded"
             />
           </div>
+
           <div className="mb-4">
-            <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
-              Last Name
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Last Name</label>
             <input
               type="text"
-              id="last_name"
               name="last_name"
               value={formData.last_name}
               onChange={handleChange}
               className="w-full mt-1 p-2 border border-gray-300 rounded"
             />
           </div>
-          {/* Conditional Fields */}
+
           {formData.signupMethod === "email" && (
             <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
-                id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
@@ -186,9 +173,7 @@ export default function Signup() {
 
           {formData.signupMethod === "phone_number" && (
             <div className="mb-4">
-              <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700">
-                Phone Number
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
               <PhoneInput
                 international
                 defaultCountry="IN"
@@ -198,44 +183,56 @@ export default function Signup() {
               />
             </div>
           )}
+
           <div className="mb-4">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-              Username
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Username</label>
             <input
               type="text"
-              id="username"
               name="username"
               value={formData.username}
               onChange={handleChange}
               className="w-full mt-1 p-2 border border-gray-300 rounded"
             />
           </div>
+
           <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded"
-            />
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full mt-1 p-2 border border-gray-300 rounded"
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-3 flex items-center"
+              >
+                {showPassword ? '🙈' : '👁'}
+              </button>
+            </div>
           </div>
+
           <div className="mb-4">
-            <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700">
-              Confirm Password
-            </label>
-            <input
-              type="confirm_password"
-              id="confirm_password"
-              name="confirm_password"
-              value={formData.confirm_password}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded"
-            />
+            <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirm_password"
+                value={formData.confirm_password}
+                onChange={handleChange}
+                className="w-full mt-1 p-2 border border-gray-300 rounded"
+              />
+              <button
+                type="button"
+                onClick={toggleConfirmPasswordVisibility}
+                className="absolute inset-y-0 right-3 flex items-center"
+              >
+                {showConfirmPassword ? '🙈' : '👁'}
+              </button>
+            </div>
           </div>
 
           <button
@@ -245,6 +242,7 @@ export default function Signup() {
           >
             {loading ? "Signing Up..." : "Signup"}
           </button>
+          <p className='mt-4 text-center text-sm'>Already have an account? <a href='/login' className='text-blue-500 hover:underline'>Login here</a></p>
         </form>
       </div>
     </div>
