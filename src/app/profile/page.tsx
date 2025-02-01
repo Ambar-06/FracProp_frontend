@@ -161,6 +161,7 @@ const Profile = () => {
                         {/* Phone Number Input */}
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <div className="flex items-center gap-2">
                             <PhoneInput
                                 international
                                 defaultCountry={formData?.country_code}
@@ -181,6 +182,7 @@ const Profile = () => {
                                     </button>
                                 )
                             )}
+                        </div>
                         </div>
 
                         {/* Email Verification */}
