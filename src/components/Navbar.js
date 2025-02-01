@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext"; // Import AuthContext
 
 const Navbar = () => {
-    const { user } = useAuth(); // Get user data from AuthContext
+    const { user, logout } = useAuth(); // Get user data from AuthContext
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -21,7 +21,7 @@ const Navbar = () => {
 
                 {/* ✅ Desktop Menu (Visible on Large Screens) */}
                 <div className="hidden md:flex space-x-6">
-                    <Link href="/" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Home</Link>
+                    <Link href="/dashboard" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Home</Link>
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">About</Link>
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Services</Link>
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
@@ -52,10 +52,17 @@ const Navbar = () => {
                                 </span>
                             </div>
                             <ul className="py-2">
-                                <li><Link href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Dashboard</Link></li>
+                                <li><Link href="/profile" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">My Profile</Link></li>
                                 <li><Link href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Settings</Link></li>
                                 <li><Link href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Earnings</Link></li>
-                                <li><Link href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Sign out</Link></li>
+                                <li>
+                                    <button
+                                        onClick={logout}
+                                        className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600"
+                                    >
+                                        Sign out
+                                    </button>
+                                </li>
                             </ul>
                         </div>
                     )}
@@ -79,7 +86,7 @@ const Navbar = () => {
                     ${isMenuOpen ? "translate-x-0" : "translate-x-full"} z-40 h-screen md:hidden rounded-2xl`}>
                 <div className="p-4">
                     <ul className="space-y-4 text-gray-900 dark:text-white">
-                        <li><Link href="/" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Home</Link></li>
+                        <li><Link href="/dashboard" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Home</Link></li>
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">About</Link></li>
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Services</Link></li>
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
