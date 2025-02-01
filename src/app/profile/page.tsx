@@ -2,13 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const Profile = () => {
     const [profileData, setProfileData] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState({ phone_number: "" });
 
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/profile`, {
@@ -19,10 +21,9 @@ const Profile = () => {
         })
         .then((res) => res.json())
         .then((data) => {
-            console.log("Profile Data: ", data);
             if (data.success) {
                 setProfileData(data.data);
-                setFormData(data.data);
+                setFormData({ ...data.data });
             } else {
                 setError("Failed to fetch profile data.");
             }
@@ -44,13 +45,15 @@ const Profile = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handlePhoneChange = (value) => {
+        setFormData({ ...formData, phone_number: value });
+    };
+
     const handleVerifyEmail = () => {
-        // Handle email verification logic here
         alert("Verification email sent!");
     };
 
     const handleVerifyPhone = () => {
-        // Handle phone verification logic here
         alert("Verification OTP sent!");
     };
 
@@ -59,13 +62,10 @@ const Profile = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Navbar */}
             <Navbar />
-              
-            {/* Profile Section */}
+
             <div className="flex justify-center items-center pt-24 px-6">
                 <div className="w-full max-w-3xl bg-white shadow-lg rounded-lg p-8">
-                    {/* Profile Header */}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-semibold text-gray-800">Profile</h2>
                         {!isEditing && (
@@ -78,32 +78,65 @@ const Profile = () => {
                         )}
                     </div>
 
-                    {/* Profile Form */}
                     <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {[
                             { label: "First Name", key: "first_name" },
                             { label: "Last Name", key: "last_name" },
                             { label: "Username", key: "username", readOnly: true },
-                            { label: "Country Code", key: "country_code", readOnly: true },
                         ].map((field, index) => (
-                            <div key={index} className="flex flex-col">
-                                <label className="text-gray-600 font-medium">{field.label}</label>
+                            <div key={index} className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700">{field.label}</label>
                                 <input
                                     type="text"
                                     name={field.key}
                                     value={formData?.[field.key] || ""}
                                     readOnly={!isEditing || field.readOnly}
                                     onChange={handleChange}
-                                    className={`w-full p-3 border rounded-md focus:outline-none ${
-                                        isEditing && !field.readOnly ? "bg-white border-gray-400" : "bg-gray-100 text-gray-500"
+                                    className={`w-full mt-1 p-2 border border-gray-300 rounded ${
+                                        (!isEditing || field.readOnly) ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white"
                                     }`}
                                 />
                             </div>
                         ))}
 
+                        {/* Phone Number Input */}
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <PhoneInput
+                                international
+                                defaultCountry="IN"
+                                value={formData?.phone_number}
+                                onChange={handlePhoneChange}
+                                disabled={!isEditing}
+                                className={`w-full mt-1 p-2 border border-gray-300 rounded ${
+                                    !isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white"
+                                }`}
+                            />
+                            {formData?.phone_number ? (
+                                formData?.is_phone_verified ? (
+                                    <span className="text-green-500 font-semibold">✔ Verified</span>
+                                ) : (
+                                    <button
+                                        onClick={handleVerifyPhone}
+                                        type="button"
+                                        className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600 mt-2"
+                                    >
+                                        Verify
+                                    </button>
+                                )
+                            ) : isEditing && (
+                                <button
+                                    type="button"
+                                    className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 mt-2"
+                                >
+                                    Add Phone
+                                </button>
+                            )}
+                        </div>
+
                         {/* Email Verification */}
-                        <div className="flex flex-col">
-                            <label className="text-gray-600 font-medium">Email</label>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
                             <div className="flex items-center gap-2">
                                 <input
                                     type="email"
@@ -111,8 +144,8 @@ const Profile = () => {
                                     value={formData?.email || ""}
                                     readOnly={!isEditing}
                                     onChange={handleChange}
-                                    className={`w-full p-3 border rounded-md focus:outline-none ${
-                                        isEditing ? "bg-white border-gray-400" : "bg-gray-100 text-gray-500"
+                                    className={`w-full mt-1 p-2 border border-gray-300 rounded ${
+                                        !isEditing ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white"
                                     }`}
                                 />
                                 {formData?.email ? (
@@ -137,51 +170,11 @@ const Profile = () => {
                                 )}
                             </div>
                         </div>
-
-                        {/* Phone Verification */}
-                        <div className="flex flex-col">
-                            <label className="text-gray-600 font-medium">Phone</label>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    name="phone_number"
-                                    value={formData?.phone_number || ""}
-                                    readOnly={!isEditing}
-                                    onChange={handleChange}
-                                    className={`w-full p-3 border rounded-md focus:outline-none ${
-                                        isEditing ? "bg-white border-gray-400" : "bg-gray-100 text-gray-500"
-                                    }`}
-                                />
-                                {formData?.phone_number ? (
-                                    formData?.is_phone_verified ? (
-                                        <span className="text-green-500 font-semibold">✔ Verified</span>
-                                    ) : (
-                                        <button
-                                            onClick={handleVerifyPhone}
-                                            type="button"
-                                            className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600"
-                                        >
-                                            Verify
-                                        </button>
-                                    )
-                                ) : isEditing && (
-                                    <button
-                                        type="button"
-                                        className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
-                                    >
-                                        Add Phone
-                                    </button>
-                                )}
-                            </div>
-                        </div>
                     </form>
 
-                    {/* Buttons */}
                     {isEditing && (
                         <div className="flex justify-end mt-6 space-x-4">
-                            <button
-                                className="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition"
-                            >
+                            <button className="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 transition">
                                 Save
                             </button>
                             <button
