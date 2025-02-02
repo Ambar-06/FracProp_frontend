@@ -23,7 +23,7 @@ export default function Signup() {
     first_name: "",
     last_name: "",
     country_code: "+91",
-    signupMethod: "email",
+    signupMethod: "email", // Default signup method
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +44,7 @@ export default function Signup() {
     setFormData({
       ...formData,
       signupMethod: method,
-      email: "",
+      email: "", // Reset email or phone_number based on method
       phone_number: "",
     });
   };
@@ -89,9 +89,10 @@ export default function Signup() {
 
       cleanedFormData.phone_number = phoneNumber.nationalNumber; // ✅ Only number
       cleanedFormData.country_code = `+${phoneNumber.countryCallingCode}`; // ✅ Keep +91 in country_code
+      cleanedFormData.email = null; // Ensure email is null if not used
     } else {
-      cleanedFormData.phone_number = null;
-      cleanedFormData.country_code = null;
+      cleanedFormData.phone_number = null; // Ensure phone_number is null if not used
+      cleanedFormData.country_code = null; // Ensure country_code is null if not used
     }
 
     try {
