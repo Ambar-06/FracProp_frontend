@@ -13,7 +13,6 @@ const Home = () => {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         if (!token) {
@@ -21,32 +20,45 @@ const Home = () => {
             return;
         }
 
-        const dummyData = {
-            totalInvestment: 500000,
-            totalReturns: 12000,
-            totalRentalIncome: 20000,
-            totalProperties: 10,
-            investmentGrowth: [
-                { date: "Jan", amount: 10000 },
-                { date: "Feb", amount: 15000 },
-                { date: "Mar", amount: 20000 },
-                { date: "Apr", amount: 25000 },
-                { date: "May", amount: 30000 },
-            ],
-            transactions: [
-                { description: "Property Investment", amount: 100000 },
-                { description: "Rental Income", amount: 5000 },
-                { description: "Property Sale", amount: 200000 },
-            ],
-        };
-
-        setTimeout(() => {
-            setDashboardData(dummyData);
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/dashboard`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.success) {
+                setDashboardData({
+                    totalInvestment: data.data.total_investment,
+                    totalReturns: 0, // Add if API provides this data
+                    totalRentalIncome: data.data.total_rental_income,
+                    totalProperties: data.data.total_properties,
+                    valuationChange: data.data.increase_in_valuation || 0, // Ensure no undefined values
+                    investmentGrowth: [
+                        { date: "Jan", amount: 10000 },
+                        { date: "Feb", amount: 15000 },
+                        { date: "Mar", amount: 20000 },
+                        { date: "Apr", amount: 25000 },
+                        { date: "May", amount: 30000 },
+                    ],
+                    transactions: [
+                        { description: "Property Investment", amount: 100000 },
+                        { description: "Rental Income", amount: 5000 },
+                        { description: "Property Sale", amount: 200000 },
+                    ],
+                });
+            } else {
+                setError("Failed to fetch dashboard data.");
+            }
             setLoading(false);
-        }, 1000);
+        })
+        .catch(() => {
+            setError("Failed to load dashboard data.");
+            setLoading(false);
+        });
     }, [token, router]);
-
-    const handleMenuToggle = () => setIsMenuOpen(!isMenuOpen);
 
     if (loading) return <p className="text-center mt-10 text-xl text-gray-600">Loading...</p>;
     if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
@@ -78,7 +90,7 @@ const Home = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
                     { label: "Total Investment", value: `₹${dashboardData?.totalInvestment}` },
-                    { label: "Total Returns", value: `₹${dashboardData?.totalReturns}` },
+                    { label: "Valuation Change", value: `${dashboardData?.valuationChange}%` },
                     { label: "Total Rental Income", value: `₹${dashboardData?.totalRentalIncome}` },
                     { label: "Total Properties", value: dashboardData?.totalProperties },
                 ].map((card, index) => (
@@ -91,7 +103,6 @@ const Home = () => {
 
             {/* Investment Growth Chart */}
             <div className="bg-white p-6 shadow-lg rounded-xl flex flex-col md:flex-row justify-between items-center">
-                {/* Chart Section */}
                 <div className="w-full md:w-2/3">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4 w-full text-center md:text-left">Investment Growth</h2>
                     <div className="relative w-full h-72 md:h-96">
@@ -144,7 +155,7 @@ const Home = () => {
                     Explore Properties to Invest In
                 </button>
             </div>
-        </div >
+        </div>
     );
 };
 
