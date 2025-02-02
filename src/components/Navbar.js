@@ -37,11 +37,11 @@ const Navbar = () => {
                         onClick={toggleUserMenu}
                     >
                         <span className="sr-only">Open user menu</span>
-                        <img 
-    className="w-8 h-8 rounded-full" 
-    src="https://www.gravatar.com/avatar/?d=mp" 
-    alt="User profile"
-/>
+                        <img
+                            className="w-8 h-8 rounded-full"
+                            src={`https://ui-avatars.com/api/?name=${user?.first_name || 'User'}&background=random`}
+                            alt="User profile"
+                        />
                     </button>
 
                     {/* User Dropdown Menu */}
