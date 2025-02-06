@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
@@ -57,7 +57,6 @@ const ExploreProperties = () => {
 
 // Property Card Component
 const PropertyCard = ({ property, router }) => {
-    console.log(property, "property")
     const [currentImage, setCurrentImage] = useState(0);
     const images = property.property_images?.length > 0 ? property.property_images : ["/default-property.jpg"];
 
@@ -72,9 +71,8 @@ const PropertyCard = ({ property, router }) => {
     const userOwnership = property.user_percentage_ownership ?? {};
     const stakePercent = userOwnership.stake_in_percent ?? 0;
 
-    console.log("Property:", property.name);
-    console.log("Stake Percent:", stakePercent);
-    console.log("Total Investment:", totalInvestment);
+    // Use `percentage_sold` field from API response
+    const percentageSold = property.percentage_sold ?? 0;
 
     return (
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -112,6 +110,17 @@ const PropertyCard = ({ property, router }) => {
                 <p className="text-gray-700 text-sm mt-2">Type: <span className="font-medium">{property.type}</span></p>
                 <p className="text-gray-700 text-sm">Built Area: <span className="font-medium">{property.built_area_in_sqft} sqft</span></p>
                 <p className="text-gray-700 text-sm">Valuation: <span className="font-medium">₹{property.valuation.toLocaleString()}</span></p>
+
+                {/* Sold Percentage Progress Bar */}
+                <div className="mt-4">
+                    <p className="text-gray-700 text-sm">Sold Percentage: <span className="font-medium">{percentageSold.toFixed(2)}%</span></p>
+                    <div className="w-full bg-gray-300 rounded-full h-3 mt-1">
+                        <div
+                            className="bg-green-500 h-3 rounded-full transition-all duration-500"
+                            style={{ width: `${percentageSold}%` }}
+                        ></div>
+                    </div>
+                </div>
 
                 {/* User Investment Info */}
                     <div className="mt-4 bg-gray-100 p-3 rounded-lg">
