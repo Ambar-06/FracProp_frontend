@@ -22,7 +22,7 @@ const Navbar = () => {
                 {/* ✅ Desktop Menu (Visible on Large Screens) */}
                 <div className="hidden md:flex space-x-6">
                     <Link href="/dashboard" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Home</Link>
-                    <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">About</Link>
+                    <Link href="/properties" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Explore</Link>
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Services</Link>
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Contact</Link>
@@ -37,7 +37,11 @@ const Navbar = () => {
                         onClick={toggleUserMenu}
                     >
                         <span className="sr-only">Open user menu</span>
-                        <img className="w-8 h-8 rounded-full" src="/docs/images/people/profile-picture-3.jpg" alt="user photo" />
+                        <img
+                            className="w-8 h-8 rounded-full"
+                            src={`https://ui-avatars.com/api/?name=${user?.first_name || 'User'}&background=random`}
+                            alt="User profile"
+                        />
                     </button>
 
                     {/* User Dropdown Menu */}

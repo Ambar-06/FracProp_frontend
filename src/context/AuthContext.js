@@ -9,47 +9,51 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Initialize state as null (avoid SSR issue)
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-      const storedUser = localStorage.getItem("user");
-      const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
 
-      if (storedUser && storedToken) {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-      } else if (!storedToken && pathname !== "/login" && pathname !== "/signup") {
-        router.push('/login');
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
+
+      // Redirect logged-in users away from login/signup
+      if (pathname === "/login" || pathname === "/signup") {
+        router.push("/dashboard"); // Redirect to dashboard
+      }
+    } else if (!storedToken && pathname !== "/login" && pathname !== "/signup") {
+      router.push("/login"); // Redirect to login if not authenticated
     }
-    setLoading(false); 
+
+    setLoading(false);
   }, [pathname, router]);
 
   const login = (data) => {
     setUser(data);
     setToken(data.token);
 
-      localStorage.setItem("user", JSON.stringify(data));
-      localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("token", data.token);
 
-
-    router.push('/dashboard');  // Redirect to dashboard after login
+    router.push("/dashboard"); // Redirect to dashboard after login
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
 
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
 
     router.push("/login");
   };
 
   if (loading) {
-    return null; // You can show a loader if you want to wait for the context to be set
+    return null; // Show loader if necessary
   }
 
   return (

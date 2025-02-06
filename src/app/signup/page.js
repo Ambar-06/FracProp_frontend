@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import PhoneInput from "react-phone-number-input";
+import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/context/AuthContext"; // Import useAuth
 
 const Alert = ({ message }) => (
   <div className="fixed top-5 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-4 rounded-md shadow-md">
@@ -12,6 +13,7 @@ const Alert = ({ message }) => (
 );
 
 export default function Signup() {
+  const { login } = useAuth(); // Use login from AuthContext
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -21,7 +23,7 @@ export default function Signup() {
     first_name: "",
     last_name: "",
     country_code: "+91",
-    signupMethod: "email",
+    signupMethod: "email", // Default signup method
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -31,20 +33,20 @@ export default function Signup() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [name]: value });
   };
 
   const handlePhoneChange = (value) => {
-    setFormData((prev) => ({ ...prev, phone_number: value }));
+    setFormData({ ...formData, phone_number: value });
   };
 
   const handleTabChange = (method) => {
-    setFormData((prev) => ({
-      ...prev,
+    setFormData({
+      ...formData,
       signupMethod: method,
-      email: "",
+      email: "", // Reset email or phone_number based on method
       phone_number: "",
-    }));
+    });
   };
 
   const validateForm = () => {
@@ -56,8 +58,12 @@ export default function Signup() {
       setError("Invalid email address");
       return false;
     }
-    if (formData.signupMethod === "phone_number" && formData.phone_number.length < 10) {
+    if (formData.signupMethod === "phone_number" && (!formData.phone_number || formData.phone_number.length < 10)) {
       setError("Phone number should be at least 10 digits");
+      return false;
+    }
+    if (formData.password !== formData.confirm_password) {
+      setError("Passwords do not match");
       return false;
     }
     return true;
@@ -70,19 +76,29 @@ export default function Signup() {
     setLoading(true);
     setError(null);
 
-    const cleanedFormData = {
-      ...formData,
-      email: formData.signupMethod === "email" ? formData.email : null,
-      phone_number: formData.signupMethod === "phone_number" ? formData.phone_number : null,
-      country_code: formData.signupMethod === "phone_number" ? formData.country_code : null,
-    };
+    let cleanedFormData = { ...formData };
+
+    if (formData.signupMethod === "phone_number") {
+      const phoneNumber = parsePhoneNumber(formData.phone_number);
+
+      if (!phoneNumber) {
+        setError("Invalid phone number.");
+        setLoading(false);
+        return;
+      }
+
+      cleanedFormData.phone_number = phoneNumber.nationalNumber; // ✅ Only number
+      cleanedFormData.country_code = `+${phoneNumber.countryCallingCode}`; // ✅ Keep +91 in country_code
+      cleanedFormData.email = null; // Ensure email is null if not used
+    } else {
+      cleanedFormData.phone_number = null; // Ensure phone_number is null if not used
+      cleanedFormData.country_code = null; // Ensure country_code is null if not used
+    }
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/auth/signup`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cleanedFormData),
       });
 
@@ -90,13 +106,13 @@ export default function Signup() {
 
       if (response.ok) {
         console.log("User signed up successfully:", data);
+        // Use login function from AuthContext to store user and token
+        login(data.data); // Redirects to dashboard after login
       } else {
-        // Handle error based on the response structure
         if (data?.data) {
           setError(data.data || "Something went wrong");
-        } else if (data?.errors && data.errors.length > 0) {
-          // Assuming the backend sends an error array with detailed messages
-          const errorMessage = data.errors.map((error) => error.message).join(', ');
+        } else if (data?.errors?.length > 0) {
+          const errorMessage = data.errors.map((error) => error.message).join(", ");
           setError(errorMessage || "Something went wrong");
         } else {
           setError(data.message || "Something went wrong");
@@ -109,9 +125,8 @@ export default function Signup() {
     }
   };
 
-  const togglePasswordVisibility = () => setShowPassword((prev) => !prev); // ✅ Fix: Toggle function
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword((prev) => !prev);
-
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -138,79 +153,39 @@ export default function Signup() {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">First Name</label>
-            <input
-              type="text"
-              name="first_name"
-              value={formData.first_name}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded"
-            />
+            <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-300 rounded" />
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Last Name</label>
-            <input
-              type="text"
-              name="last_name"
-              value={formData.last_name}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded"
-            />
+            <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-300 rounded" />
           </div>
 
           {formData.signupMethod === "email" && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-300 rounded"
-              />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-300 rounded" />
             </div>
           )}
 
           {formData.signupMethod === "phone_number" && (
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-              <PhoneInput
-                international
-                defaultCountry="IN"
-                value={formData.phone_number}
-                onChange={handlePhoneChange}
-                className="w-full mt-1 p-2 border border-gray-300 rounded"
-              />
+              <PhoneInput international defaultCountry="IN" value={formData.phone_number} onChange={handlePhoneChange} className="w-full mt-1 p-2 border border-gray-300 rounded" />
             </div>
           )}
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded"
-            />
+            <input type="text" name="username" value={formData.username} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-300 rounded" />
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Password</label>
             <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-300 rounded"
-              />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute inset-y-0 right-3 flex items-center"
-              >
-                {showPassword ? '🙈' : '👁'}
+              <input type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-300 rounded" />
+              <button type="button" onClick={togglePasswordVisibility} className="absolute inset-y-0 right-3 flex items-center">
+                {showPassword ? "🙈" : "👁"}
               </button>
             </div>
           </div>
@@ -218,23 +193,12 @@ export default function Signup() {
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
             <div className="relative">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirm_password"
-                value={formData.confirm_password}
-                onChange={handleChange}
-                className="w-full mt-1 p-2 border border-gray-300 rounded"
-              />
-              <button
-                type="button"
-                onClick={toggleConfirmPasswordVisibility}
-                className="absolute inset-y-0 right-3 flex items-center"
-              >
-                {showConfirmPassword ? '🙈' : '👁'}
+              <input type={showConfirmPassword ? "text" : "password"} name="confirm_password" value={formData.confirm_password} onChange={handleChange} className="w-full mt-1 p-2 border border-gray-300 rounded" />
+              <button type="button" onClick={toggleConfirmPasswordVisibility} className="absolute inset-y-0 right-3 flex items-center">
+                {showConfirmPassword ? "🙈" : "👁"}
               </button>
             </div>
           </div>
-
           <button
             type="submit"
             disabled={loading}
@@ -242,7 +206,7 @@ export default function Signup() {
           >
             {loading ? "Signing Up..." : "Signup"}
           </button>
-          <p className='mt-4 text-center text-sm'>Already have an account? <a href='/login' className='text-blue-500 hover:underline'>Login here</a></p>
+          <p className="mt-4 text-center text-sm">Already have an account? <a href="/login" className="text-blue-500 hover:underline">Login here</a></p>
         </form>
       </div>
     </div>

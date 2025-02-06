@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState } from "react";
-import PhoneInput from "react-phone-number-input";
+import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
@@ -54,9 +53,18 @@ const Login = () => {
     setError(null);
 
     let payload = { password: formData.password };
+
     if (formData.loginMethod === "phone_number") {
-      payload.phone_number = formData.phone_number;
-      payload.country_code = formData.country_code;
+      const phoneNumber = parsePhoneNumber(formData.phone_number);
+
+      if (!phoneNumber) {
+        setError("Invalid phone number.");
+        setLoading(false);
+        return;
+      }
+
+      payload.phone_number = phoneNumber.nationalNumber;  // Send only number
+      payload.country_code = `+${phoneNumber.countryCallingCode}`;  // Keep +91 in country_code
     } else {
       payload[formData.loginMethod] = formData[formData.loginMethod];
     }
@@ -69,7 +77,9 @@ const Login = () => {
       });
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Login failed");
+      if (!res.ok) {
+        throw new Error(data.message || data.data || "Login failed");
+      }
 
       login(data.data);
       router.push("/dashboard");
@@ -86,7 +96,7 @@ const Login = () => {
         <h2 className="text-2xl font-bold mb-4">Login</h2>
         {error && <Alert message={error} />}
 
-        <div className="mb-4 flex space-x-4 border-b">
+         <div className="mb-4 flex space-x-4 border-b">
           <button
             className={`py-2 px-4 ${formData.loginMethod === "email" ? "border-b-2 border-blue-500" : ""}`}
             onClick={() => handleTabChange("email")}
@@ -121,7 +131,7 @@ const Login = () => {
             </div>
           ) : (
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">{formData.loginMethod.charAt(0).toUpperCase() + formData.loginMethod.slice(1)}</label>
+               <label className="block text-sm font-medium text-gray-700">{formData.loginMethod.charAt(0).toUpperCase() + formData.loginMethod.slice(1)}</label>
               <input
                 type="text"
                 name={formData.loginMethod}
@@ -132,7 +142,7 @@ const Login = () => {
             </div>
           )}
 
-          <div className="mb-4">
+<div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Password</label>
             <div className="relative">
               <input
@@ -159,7 +169,13 @@ const Login = () => {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
-          <p className='mt-4 text-center text-sm'>Don't have an account? <a href='/signup' className='text-blue-500 hover:underline'>Sign up here</a></p>
+
+          <p className="mt-4 text-center text-sm">
+            Don't have an account?{" "}
+            <a href="/signup" className="text-blue-500 hover:underline">
+              Sign up here
+            </a>
+          </p>
         </form>
       </div>
     </div>
