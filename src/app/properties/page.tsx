@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import Link from "next/link";
 
 const ExploreProperties = () => {
     const [properties, setProperties] = useState([]);
@@ -13,25 +14,25 @@ const ExploreProperties = () => {
     const router = useRouter();
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}property/`, {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/`, {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
-        .then((res) => res.json())
-        .then((data) => {
-            if (data.success) {
-                setProperties(data.data);
-            } else {
-                setError("Failed to fetch properties.");
-            }
-            setLoading(false);
-        })
-        .catch(() => {
-            setError("Failed to load properties.");
-            setLoading(false);
-        });
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    setProperties(data.data);
+                } else {
+                    setError("Failed to fetch properties.");
+                }
+                setLoading(false);
+            })
+            .catch(() => {
+                setError("Failed to load properties.");
+                setLoading(false);
+            });
     }, []);
 
     if (loading) return <p className="text-center mt-20 text-xl text-gray-600">Loading properties...</p>;
@@ -39,7 +40,6 @@ const ExploreProperties = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Navbar */}
             <Navbar />
 
             <div className="max-w-6xl mx-auto mt-20 p-6">
@@ -57,11 +57,24 @@ const ExploreProperties = () => {
 
 // Property Card Component
 const PropertyCard = ({ property, router }) => {
+    console.log(property, "property")
     const [currentImage, setCurrentImage] = useState(0);
-    const images = property.property_images.length > 0 ? property.property_images : ["/default-property.jpg"]; // Default Image
+    const images = property.property_images?.length > 0 ? property.property_images : ["/default-property.jpg"];
 
     const nextImage = () => setCurrentImage((prev) => (prev + 1) % images.length);
     const prevImage = () => setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+
+    // Extract user investment data safely
+    const userInvestment = property.user_investments ?? {};
+    const totalInvestment = userInvestment.total_investment ?? 0;
+    const totalAmount = userInvestment.total_amount ?? 0;
+
+    const userOwnership = property.user_percentage_ownership ?? {};
+    const stakePercent = userOwnership.stake_in_percent ?? 0;
+
+    console.log("Property:", property.name);
+    console.log("Stake Percent:", stakePercent);
+    console.log("Total Investment:", totalInvestment);
 
     return (
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -100,13 +113,28 @@ const PropertyCard = ({ property, router }) => {
                 <p className="text-gray-700 text-sm">Built Area: <span className="font-medium">{property.built_area_in_sqft} sqft</span></p>
                 <p className="text-gray-700 text-sm">Valuation: <span className="font-medium">₹{property.valuation.toLocaleString()}</span></p>
 
-                {/* Invest Button */}
-                <button
-                    onClick={() => router.push(`/invest/${property.uuid}`)}
-                    className="mt-4 w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
-                >
-                    Invest Now
-                </button>
+                {/* User Investment Info */}
+                    <div className="mt-4 bg-gray-100 p-3 rounded-lg">
+                        <h4 className="text-lg font-semibold text-gray-800">Your Investment</h4>
+                        <p className="text-gray-700 text-sm">Total Investment: <span className="font-medium">₹{totalInvestment.toLocaleString()}</span></p>
+                        <p className="text-gray-700 text-sm">Your Stake: <span className="font-medium">{(stakePercent).toFixed(3)}%</span></p>
+                    </div>
+
+                {/* Buttons */}
+                <div className="mt-4 flex flex-col gap-2">
+                    <button
+                        onClick={() => router.push(`/invest/${property.uuid}`)}
+                        className="w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                    >
+                        Invest Now
+                    </button>
+                    <Link href={`/properties/${property.uuid}`}>
+                        <button
+                            className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+                            View Details
+                        </button>
+                    </Link>
+                </div>
             </div>
         </div>
     );
