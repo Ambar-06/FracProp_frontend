@@ -91,7 +91,7 @@ const Navbar = () => {
                 <div className="p-4">
                     <ul className="space-y-4 text-gray-900 dark:text-white">
                         <li><Link href="/dashboard" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Home</Link></li>
-                        <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">About</Link></li>
+                        <li><Link href="/properties" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Explore</Link></li>
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Services</Link></li>
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
