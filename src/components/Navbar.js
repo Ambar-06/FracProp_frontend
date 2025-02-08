@@ -24,7 +24,7 @@ const Navbar = () => {
                     <Link href="/dashboard" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Home</Link>
                     <Link href="/properties" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Explore</Link>
                     {(user?.is_admin || user?.is_staff) && (
-                        <Link href="/add-property" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">List Property</Link>
+                        <Link href="/properties/add" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">List Property</Link>
                     )}
                     {(user?.is_admin) && (
                         <Link href="/add-property" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Approve Property</Link>
@@ -100,7 +100,7 @@ const Navbar = () => {
                         <li><Link href="/properties" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Explore</Link></li>
                         {(user?.is_admin || user?.is_staff) && (
                             <li>
-                                <Link href="/add-property" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <Link href="/properties/add" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">
                                     List Property
                                 </Link>
                             </li>
