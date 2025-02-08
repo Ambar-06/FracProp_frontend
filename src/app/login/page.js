@@ -96,7 +96,7 @@ const Login = () => {
         <h2 className="text-2xl font-bold mb-4">Login</h2>
         {error && <Alert message={error} />}
 
-         <div className="mb-4 flex space-x-4 border-b">
+        <div className="mb-4 flex space-x-4 border-b">
           <button
             className={`py-2 px-4 ${formData.loginMethod === "email" ? "border-b-2 border-blue-500" : ""}`}
             onClick={() => handleTabChange("email")}
@@ -131,7 +131,7 @@ const Login = () => {
             </div>
           ) : (
             <div className="mb-4">
-               <label className="block text-sm font-medium text-gray-700">{formData.loginMethod.charAt(0).toUpperCase() + formData.loginMethod.slice(1)}</label>
+              <label className="block text-sm font-medium text-gray-700">{formData.loginMethod.charAt(0).toUpperCase() + formData.loginMethod.slice(1)}</label>
               <input
                 type="text"
                 name={formData.loginMethod}
@@ -142,7 +142,7 @@ const Login = () => {
             </div>
           )}
 
-<div className="mb-4">
+          <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700">Password</label>
             <div className="relative">
               <input
