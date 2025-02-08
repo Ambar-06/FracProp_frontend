@@ -23,6 +23,12 @@ const Navbar = () => {
                 <div className="hidden md:flex space-x-6">
                     <Link href="/dashboard" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Home</Link>
                     <Link href="/properties" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Explore</Link>
+                    {(user?.is_admin || user?.is_staff) && (
+                        <Link href="/add-property" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">List Property</Link>
+                    )}
+                    {(user?.is_admin) && (
+                        <Link href="/add-property" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Approve Property</Link>
+                    )}
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Services</Link>
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
                     <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Contact</Link>
@@ -92,9 +98,21 @@ const Navbar = () => {
                     <ul className="space-y-4 text-gray-900 dark:text-white">
                         <li><Link href="/dashboard" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Home</Link></li>
                         <li><Link href="/properties" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Explore</Link></li>
+                        {(user?.is_admin || user?.is_staff) && (
+                            <li>
+                                <Link href="/add-property" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                    List Property
+                                </Link>
+                            </li>
+                        )}
+                        {(user?.is_admin) && (
+                        <Link href="/add-property" className="block py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Approve Property</Link>
+                    )}
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Services</Link></li>
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
                         <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
+
+                        
                     </ul>
                 </div>
             </div>
