@@ -107,8 +107,7 @@ const Navbar = () => {
             </div>
 
             {/* ✅ Mobile Menu (Visible at 1040px or below) */}
-            {/* ${isMenuOpen ? "translate-x-0" : "translate-x-full"} */}
-            {/* ✅ Mobile Menu (Hidden on Desktop) */}
+
             {!isDesktop && (
             <div className={`fixed top-20 right-4 w-64 bg-white dark:bg-gray-800 shadow-lg z-40 h-screen rounded-2xl transition-transform transform ${isMenuOpen ? "translate-x-0" : "translate-x-full"}` }>
                 <div className="p-4">
