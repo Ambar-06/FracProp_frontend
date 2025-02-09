@@ -63,8 +63,36 @@ const ListProperty = () => {
             }));
         }
     };
+    const isStepValid = () => {
+        const requiredFields = {
+            0: ['name', 'address', 'city', 'state', 'country', 'pin_code', 'description'],
+            1: ['type', 'number_of_floors', 'number_of_rooms', 'return_type', 'govt_allotted_property_id', 'built_area_in_sqft', 'area_in_sqft', 'latitude', 'longitude'],
+            2: ['valuation', 'investment_lock_in_period_in_months', 'other_details.construction_age_in_years', 'other_details.building_health'],
+            3: ['amenities.school', 'amenities.hospital', 'amenities.park', 'amenities.shopping_mall'],
+        };
+        if (requiredFields[step]) {
+            return requiredFields[step].every((field) => {
+                if (field.includes('.')) {
+                    const [parent, child] = field.split('.');
+                    return formData[parent][child] !== '';
+                }
+                return formData[field] !== '';
+            });
+        }
+        return true;
+    };
 
-    const nextStep = () => setStep((prev) => prev + 1);
+    const nextStep = () => {
+        if (isStepValid()) {
+            setStep((prev) => prev + 1);
+        } else {
+            const button = document.getElementById('next-button');
+            if (button) {
+                button.classList.add('animate-shake');
+                setTimeout(() => button.classList.remove('animate-shake'), 500);
+            }
+        }
+    };
     const prevStep = () => setStep((prev) => prev - 1);
 
     return (
@@ -286,11 +314,11 @@ const ListProperty = () => {
                 )}
                 {/* Navigation Buttons */}
                 <div className="flex justify-between mt-6">
-                    {step > 0 && (
-                        <button onClick={prevStep} className="bg-gray-500 text-white py-2 px-4 rounded-lg">Back</button>
-                    )}
+                    {step === 0 ? (
+                        <button className="bg-gray-500 text-white py-2 px-4 rounded-lg">Back</button>
+                    ): ( <button onClick={prevStep} className="bg-blue-500 text-white py-2 px-4 rounded-lg">Back</button>)}
                     {step < steps.length - 1 ? (
-                        <button onClick={nextStep} className="bg-blue-500 text-white py-2 px-4 rounded-lg">Next</button>
+                        <button id="next-button" onClick={nextStep} className={`py-2 px-4 rounded-lg ${isStepValid() ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white animate-shake'}`}>Next</button>
                     ) : (
                         <button className="bg-green-500 text-white py-2 px-4 rounded-lg">Submit</button>
                     )}
