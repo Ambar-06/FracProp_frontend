@@ -1,13 +1,24 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from 'next/link';
-import { useAuth } from "@/context/AuthContext"; // Import AuthContext
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
-    const { user, logout } = useAuth(); // Get user data from AuthContext
+    const { user, logout } = useAuth();
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
+
+    useEffect(() => {
+        const updateSize = () => {
+            setIsDesktop(window.innerWidth > 1040);
+        };
+
+        updateSize(); // Initial check
+        window.addEventListener("resize", updateSize);
+        return () => window.removeEventListener("resize", updateSize);
+    }, []);
 
     const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -19,20 +30,22 @@ const Navbar = () => {
                     <img src="/fp_logo.png" alt="FracProp" className="h-10" />
                 </Link>
 
-                {/* ✅ Desktop Menu (Visible on Large Screens) */}
-                <div className="hidden md:flex space-x-6">
-                    <Link href="/dashboard" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Home</Link>
-                    <Link href="/properties" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Explore</Link>
-                    {(user?.is_admin || user?.is_staff) && (
-                        <Link href="/properties/add" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">List Property</Link>
-                    )}
-                    {(user?.is_admin) && (
-                        <Link href="/add-property" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Approve Property</Link>
-                    )}
-                    <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Services</Link>
-                    <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
-                    <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Contact</Link>
-                </div>
+                {/* ✅ Desktop Menu (Visible only when width > 1040px) */}
+                {isDesktop && (
+                    <div className="flex space-x-6">
+                        <Link href="/dashboard" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Home</Link>
+                        <Link href="/properties" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Explore</Link>
+                        {(user?.is_admin || user?.is_staff) && (
+                            <Link href="/properties/add" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">List Property</Link>
+                        )}
+                        {(user?.is_admin) && (
+                            <Link href="/add-property" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Approve Property</Link>
+                        )}
+                        <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Services</Link>
+                        <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
+                        <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Contact</Link>
+                    </div>
+                )}
 
                 {/* User Menu & Burger Icon */}
                 <div className="flex items-center md:order-2 space-x-3 relative">
@@ -77,23 +90,27 @@ const Navbar = () => {
                         </div>
                     )}
 
-                    {/* Burger Menu Button (Mobile) */}
-                    <button
-                        type="button"
-                        className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={toggleMenu}
-                    >
-                        <span className="sr-only">Open main menu</span>
-                        <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
-                        </svg>
-                    </button>
+                    {/* ✅ Burger Menu Button (Visible at 1040px or below) */}
+                    {!isDesktop && (
+                        <button
+                            type="button"
+                            className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                            onClick={toggleMenu}
+                        >
+                            <span className="sr-only">Open main menu</span>
+                            <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
+                            </svg>
+                        </button>
+                    )}
                 </div>
             </div>
 
+            {/* ✅ Mobile Menu (Visible at 1040px or below) */}
+            {/* ${isMenuOpen ? "translate-x-0" : "translate-x-full"} */}
             {/* ✅ Mobile Menu (Hidden on Desktop) */}
-            <div className={`fixed top-20 right-4 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out 
-                    ${isMenuOpen ? "translate-x-0" : "translate-x-full"} z-40 h-screen md:hidden rounded-2xl`}>
+            {!isDesktop && (
+            <div className={`fixed top-20 right-4 w-64 bg-white dark:bg-gray-800 shadow-lg z-40 h-screen rounded-2xl transition-transform transform ${isMenuOpen ? "translate-x-0" : "translate-x-full"}` }>
                 <div className="p-4">
                     <ul className="space-y-4 text-gray-900 dark:text-white">
                         <li><Link href="/dashboard" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Home</Link></li>
@@ -108,14 +125,13 @@ const Navbar = () => {
                         {(user?.is_admin) && (
                         <Link href="/add-property" className="block py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Approve Property</Link>
                     )}
-                        <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Services</Link></li>
-                        <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
-                        <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
-
-                        
-                    </ul>
+                            <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Services</Link></li>
+                            <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
+                            <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
+            )}
         </nav>
     );
 };
