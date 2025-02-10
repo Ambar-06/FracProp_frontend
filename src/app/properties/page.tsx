@@ -15,10 +15,17 @@ const ExploreProperties = () => {
     const [investmentAmount, setInvestmentAmount] = useState("");
     const [investing, setInvesting] = useState(false);
     const [investmentError, setInvestmentError] = useState(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const router = useRouter();
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/`, {
+        fetchProperties(page);
+    }, [page]);
+
+    const fetchProperties = (page) => {
+        setLoading(true);
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/?page=${page}&perPage=10`, {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -28,6 +35,7 @@ const ExploreProperties = () => {
             .then((data) => {
                 if (data.success) {
                     setProperties(data.data);
+                    setTotalPages(data.meta.pagination.totalPages);
                 } else {
                     setError("Failed to fetch properties.");
                 }
@@ -37,7 +45,7 @@ const ExploreProperties = () => {
                 setError("Failed to load properties.");
                 setLoading(false);
             });
-    }, []);
+    };
 
     const handleInvestNow = (property) => {
         setSelectedProperty(property);
@@ -84,6 +92,14 @@ const ExploreProperties = () => {
         }
     };
 
+    const nextPage = () => {
+        if (page < totalPages) setPage(page + 1);
+    };
+
+    const prevPage = () => {
+        if (page > 1) setPage(page - 1);
+    };
+
     if (loading) return <p className="text-center mt-20 text-xl text-gray-600">Loading properties...</p>;
     if (error) return <p className="text-center text-red-500 mt-20">{error}</p>;
 
@@ -98,6 +114,25 @@ const ExploreProperties = () => {
                     {properties.map((property) => (
                         <PropertyCard key={property.uuid} property={property} onInvestNow={handleInvestNow} />
                     ))}
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex justify-between items-center mt-8">
+                    <button
+                        onClick={prevPage}
+                        disabled={page === 1}
+                        className={`px-4 py-2 rounded-md ${page === 1 ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+                    >
+                        <FaArrowLeft className="inline mr-2" /> Previous
+                    </button>
+                    <span className="text-gray-800">Page {page} of {totalPages}</span>
+                    <button
+                        onClick={nextPage}
+                        disabled={page === totalPages}
+                        className={`px-4 py-2 rounded-md ${page === totalPages ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
+                    >
+                        Next <FaArrowRight className="inline ml-2" />
+                    </button>
                 </div>
             </div>
 
@@ -189,6 +224,7 @@ const PropertyCard = ({ property, onInvestNow }) => {
             <div className="p-4">
                 <h3 className="text-xl font-semibold text-gray-800">{property.name}</h3>
                 <p className="text-gray-600 text-sm">{property.address}, {property.city}, {property.state}, {property.country}</p>
+
                 <p className="text-gray-700 text-sm mt-2">Type: <span className="font-medium">{property.type}</span></p>
                 <p className="text-gray-700 text-sm">Built Area: <span className="font-medium">{property.built_area_in_sqft} sqft</span></p>
                 <p className="text-gray-700 text-sm">Valuation: <span className="font-medium">₹{property.valuation.toLocaleString()}</span></p>

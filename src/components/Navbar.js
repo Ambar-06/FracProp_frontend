@@ -9,16 +9,36 @@ const Navbar = () => {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(false);
+    const [pendingApprovals, setPendingApprovals] = useState(0);
 
     useEffect(() => {
         const updateSize = () => {
             setIsDesktop(window.innerWidth > 1040);
         };
 
-        updateSize(); // Initial check
+        updateSize();
         window.addEventListener("resize", updateSize);
         return () => window.removeEventListener("resize", updateSize);
     }, []);
+
+    useEffect(() => {
+        if (user?.is_admin) {
+            fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/approval-requests/`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    setPendingApprovals(data.data.length);
+                }
+            })
+            .catch((err) => console.error("Error fetching approval requests:", err));
+        }
+    }, [user]);
 
     const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -30,7 +50,6 @@ const Navbar = () => {
                     <img src="/fp_logo.png" alt="FracProp" className="h-10" />
                 </Link>
 
-                {/* ✅ Desktop Menu (Visible only when width > 1040px) */}
                 {isDesktop && (
                     <div className="flex space-x-6">
                         <Link href="/dashboard" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Home</Link>
@@ -39,7 +58,14 @@ const Navbar = () => {
                             <Link href="/properties/add" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">List Property</Link>
                         )}
                         {(user?.is_admin) && (
-                            <Link href="/add-property" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Approve Property</Link>
+                            <Link href="/properties/approve" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded relative">
+                                Approve Property
+                                {pendingApprovals > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                        {pendingApprovals}
+                                    </span>
+                                )}
+                            </Link>
                         )}
                         <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Services</Link>
                         <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
@@ -47,9 +73,7 @@ const Navbar = () => {
                     </div>
                 )}
 
-                {/* User Menu & Burger Icon */}
                 <div className="flex items-center md:order-2 space-x-3 relative">
-                    {/* User Menu Button */}
                     <button
                         type="button"
                         className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
@@ -63,7 +87,6 @@ const Navbar = () => {
                         />
                     </button>
 
-                    {/* User Dropdown Menu */}
                     {isUserMenuOpen && (
                         <div className="absolute right-0 top-12 z-50 w-48 bg-white dark:bg-gray-700 shadow-md rounded-lg">
                             <div className="px-4 py-3">
@@ -90,7 +113,6 @@ const Navbar = () => {
                         </div>
                     )}
 
-                    {/* ✅ Burger Menu Button (Visible at 1040px or below) */}
                     {!isDesktop && (
                         <button
                             type="button"
@@ -106,25 +128,32 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* ✅ Mobile Menu (Visible at 1040px or below) */}
-
             {!isDesktop && (
-            <div className={`fixed top-20 right-4 w-64 bg-white dark:bg-gray-800 shadow-lg z-40 h-screen rounded-2xl transition-transform transform ${isMenuOpen ? "translate-x-0" : "translate-x-full"}` }>
-                <div className="p-4">
-                    <ul className="space-y-4 text-gray-900 dark:text-white">
-                        <li><Link href="/dashboard" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Home</Link></li>
-                        <li><Link href="/properties" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Explore</Link></li>
-                        {(user?.is_admin || user?.is_staff) && (
-                            <li>
-                                <Link href="/properties/add" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    List Property
-                                </Link>
-                            </li>
-                        )}
-                        {(user?.is_admin) && (
-                        <Link href="/add-property" className="block py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Approve Property</Link>
-                    )}
-                            <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Services</Link></li>
+                <div className={`fixed top-20 right-4 w-64 bg-white dark:bg-gray-800 shadow-lg z-40 h-screen rounded-2xl transition-transform transform ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
+                    <div className="p-4">
+                        <ul className="space-y-4 text-gray-900 dark:text-white">
+                            <li><Link href="/dashboard" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Home</Link></li>
+                            <li><Link href="/properties" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Explore</Link></li>
+                            {(user?.is_admin || user?.is_staff) && (
+                                <li>
+                                    <Link href="/properties/add" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                        List Property
+                                    </Link>
+                                </li>
+                            )}
+                            {(user?.is_admin) && (
+                                <li className="relative">
+                                    <Link href="/properties/approve" className="block py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                                        Approve Property
+                                        {pendingApprovals > 0 && (
+                                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                                {pendingApprovals}
+                                            </span>
+                                        )}
+                                    </Link>
+                                </li>
+                            )}
+                             <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Services</Link></li>
                             <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
                             <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
                         </ul>
