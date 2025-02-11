@@ -16,6 +16,7 @@ const steps = [
 const ListProperty = () => {
     const router = useRouter();
     const [step, setStep] = useState(0);
+    const [submitting, setSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         address: '',
@@ -41,10 +42,10 @@ const ListProperty = () => {
             building_health: ''
         },
         amenities: {
-            school: { available: false, distance_in_km: '' },
-            hospital: { available: false, distance_in_km: '' },
-            shopping_mall: { available: false, distance_in_km: '' },
-            park: { available: false, distance_in_km: '' }
+            school: { available: false, distance_in_km: 0 },
+            hospital: { available: false, distance_in_km: 0 },
+            shopping_mall: { available: false, distance_in_km: 0 },
+            park: { available: false, distance_in_km: 0 }
         }
     });
 
@@ -70,16 +71,47 @@ const ListProperty = () => {
             2: ['valuation', 'investment_lock_in_period_in_months', 'other_details.construction_age_in_years', 'other_details.building_health'],
             3: ['amenities.school', 'amenities.hospital', 'amenities.park', 'amenities.shopping_mall'],
         };
+
         if (requiredFields[step]) {
             return requiredFields[step].every((field) => {
+                if (field === 'has_loan') {
+                    return typeof formData.has_loan === 'boolean';
+                }
                 if (field.includes('.')) {
                     const [parent, child] = field.split('.');
-                    return formData[parent][child] !== '';
+                    return formData[parent]?.[child] !== '' && formData[parent]?.[child] !== undefined;
                 }
-                return formData[field] !== '';
+                return formData[field] !== '' && formData[field] !== undefined;
             });
         }
         return true;
+    };
+    const handleSubmit = async () => {
+        try {
+            setSubmitting(true); // Disable button while submitting
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert('Property listed successfully!');
+                router.push('/properties'); // Redirect to properties list page
+            } else {
+                alert(data.message || 'Failed to list property.');
+            }
+        } catch (error) {
+            console.error('Error submitting property:', error);
+            alert('Something went wrong. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const nextStep = () => {
@@ -125,27 +157,27 @@ const ListProperty = () => {
                         </label>
                         <label className="flex flex-col">
                             <span>Address <span className="text-red-500">*</span></span>
-                        <input name="address" placeholder="Address" value={formData.address} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="address" placeholder="Address" value={formData.address} onChange={handleChange} className="border p-2 rounded-lg" required />
                         </label>
                         <label className="flex flex-col">
                             <span>City <span className="text-red-500">*</span></span>
-                        <input name="city" placeholder="City" value={formData.city} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="city" placeholder="City" value={formData.city} onChange={handleChange} className="border p-2 rounded-lg" required />
                         </label>
                         <label className="flex flex-col">
                             <span>State <span className="text-red-500">*</span></span>
-                        <input name="state" placeholder="State" value={formData.state} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="state" placeholder="State" value={formData.state} onChange={handleChange} className="border p-2 rounded-lg" required />
                         </label>
                         <label className="flex flex-col">
                             <span>Country <span className="text-red-500">*</span></span>
-                        <input name="country" placeholder="Country" value={formData.country} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="country" placeholder="Country" value={formData.country} onChange={handleChange} className="border p-2 rounded-lg" required />
                         </label>
                         <label className="flex flex-col">
                             <span>Pin Code <span className="text-red-500">*</span></span>
-                        <input name="pin_code" placeholder="Pin Code" value={formData.pin_code} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="pin_code" placeholder="Pin Code" value={formData.pin_code} onChange={handleChange} className="border p-2 rounded-lg" required />
                         </label>
                         <label className="flex flex-col">
                             <span>Description <span className="text-red-500">*</span></span>
-                        <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="border p-2 rounded-lg col-span-2" required></textarea>
+                            <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="border p-2 rounded-lg col-span-2" required></textarea>
                         </label>
                     </div>
                 )}
@@ -153,50 +185,52 @@ const ListProperty = () => {
                 {step === 1 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label className="flex flex-col">
-                        <span>Type <span className="text-red-500">*</span></span>
-                        <select name="type" value={formData.type} onChange={handleChange} className="border p-2 rounded-lg">
-                            <option value="COMMERCIAL">Commercial</option>
-                            <option value="RESIDENTIAL">Residential</option>
-                            <option value="INDUSTRIAL">Industrial</option>
-                            <option value="AGRICULTURAL">Agricultural</option>
-                            <option value="OTHER">Other</option>
-                        </select>
+                            <span>Type <span className="text-red-500">*</span></span>
+                            <select name="type" value={formData.type} onChange={handleChange} className="border p-2 rounded-lg">
+                            <option value="" disabled hidden>Select an Option</option>
+                                <option value="COMMERCIAL">Commercial</option>
+                                <option value="RESIDENTIAL">Residential</option>
+                                <option value="INDUSTRIAL">Industrial</option>
+                                <option value="AGRICULTURAL">Agricultural</option>
+                                <option value="OTHER">Other</option>
+                            </select>
                         </label>
                         <label className="flex flex-col">
                             <span>Number of Floors <span className="text-red-500">*</span></span>
-                        <input name="number_of_floors" placeholder="Number of Floors" value={formData.number_of_floors} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="number_of_floors" placeholder="Number of Floors" value={formData.number_of_floors} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex flex-col">
                             <span>Number of Rooms <span className="text-red-500">*</span></span>
-                        <input name="number_of_rooms" placeholder="Number of Rooms" value={formData.number_of_rooms} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="number_of_rooms" placeholder="Number of Rooms" value={formData.number_of_rooms} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex flex-col">
                             <span>Return Type <span className="text-red-500">*</span></span>
-                        <select name="return_type" value={formData.return_type} onChange={handleChange} className="border p-2 rounded-lg">
-                            <option value="RENT">Rent</option>
-                            <option value="APPRECIATION">Appreciation</option>
-                            <option value="OTHER">Other</option>
-                        </select>
+                            <select name="return_type" value={formData.return_type} onChange={handleChange} className="border p-2 rounded-lg">
+                            <option value="" disabled hidden>Select an Option</option>
+                                <option value="RENT">Rent</option>
+                                <option value="APPRECIATION">Appreciation</option>
+                                <option value="OTHER">Other</option>
+                            </select>
                         </label>
                         <label className="flex flex-col">
                             <span>Government Property ID <span className="text-red-500">*</span></span>
-                        <input name="govt_allotted_property_id" placeholder="Government Property ID" value={formData.govt_allotted_property_id} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="govt_allotted_property_id" placeholder="Government Property ID" value={formData.govt_allotted_property_id} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex flex-col">
                             <span>Built Area in Sqft <span className="text-red-500">*</span></span>
-                        <input name="built_area_in_sqft" type="number" step="0.01" placeholder="Built Area in Sqft" value={formData.built_area_in_sqft} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="built_area_in_sqft" type="number" step="0.01" placeholder="Built Area in Sqft" value={formData.built_area_in_sqft} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex flex-col">
                             <span>Area in Sqft <span className="text-red-500">*</span></span>
-                        <input name="area_in_sqft" type="number" step="0.01" placeholder="Area in Sqft" value={formData.area_in_sqft} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="area_in_sqft" type="number" step="0.01" placeholder="Area in Sqft" value={formData.area_in_sqft} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex flex-col">
                             <span>Latitude <span className="text-red-500">*</span></span>
-                        <input name="latitude" type="number" step="0.000001" placeholder="Latitude" value={formData.latitude} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="latitude" type="number" step="0.000001" placeholder="Latitude" value={formData.latitude} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex flex-col">
                             <span>Longitude <span className="text-red-500">*</span></span>
-                        <input name="longitude" type="number" step="0.000001" placeholder="Longitude" value={formData.longitude} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="longitude" type="number" step="0.000001" placeholder="Longitude" value={formData.longitude} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                     </div>
                 )}
@@ -204,29 +238,30 @@ const ListProperty = () => {
                 {step === 2 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label className="flex flex-col">
-                        <span>Property Valuation <span className="text-red-500">*</span></span>
-                        <input name="valuation" type="number" step="0.01" placeholder="Property Valuation" value={formData.valuation} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <span>Property Valuation <span className="text-red-500">*</span></span>
+                            <input name="valuation" type="number" step="0.01" placeholder="Property Valuation" value={formData.valuation} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex items-center space-x-2">
                             <input type="checkbox" name="has_loan" checked={formData.has_loan} onChange={handleChange} className="border p-2 rounded-lg" />
-                            <span>Has Loan<span className="text-red-500">*</span></span>
+                            <span>Has Loan</span>
                         </label>
                         <label className="flex flex-col">
                             <span>Lock-in Period for Investments <span className="text-red-500">*</span></span>
-                        <input name="investment_lock_in_period_in_months" type="number" placeholder="Lock-in Period for Investments" value={formData.investment_lock_in_period_in_months} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="investment_lock_in_period_in_months" type="number" placeholder="Lock-in Period for Investments" value={formData.investment_lock_in_period_in_months} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex flex-col">
                             <span>Construction Age in Years <span className="text-red-500">*</span></span>
-                        <input name="other_details.construction_age_in_years" type="number" placeholder="Construction Age in Years" value={formData.other_details.construction_age_in_years} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="other_details.construction_age_in_years" type="number" placeholder="Construction Age in Years" value={formData.other_details.construction_age_in_years} onChange={handleChange} className="border p-2 rounded-lg" />
                         </label>
                         <label className="flex flex-col">
                             <span>Building Health <span className="text-red-500">*</span></span>
-                        <select name="other_details.building_health" value={formData.other_details.building_health} onChange={handleChange} className="border p-2 rounded-lg">
-                            <option value="EXCELLENT">Excellent</option>
-                            <option value="GOOD">Good</option>
-                            <option value="AVERAGE">Average</option>
-                            <option value="BAD">Bad</option>
-                        </select>
+                            <select name="other_details.building_health" value={formData.other_details.building_health} onChange={handleChange} className="border p-2 rounded-lg">
+                            <option value="" disabled hidden>Select an Option</option>
+                                <option value="EXCELLENT">Excellent</option>
+                                <option value="GOOD">Good</option>
+                                <option value="AVERAGE">Average</option>
+                                <option value="BAD">Bad</option>
+                            </select>
                         </label>
                     </div>
                 )}
@@ -235,28 +270,28 @@ const ListProperty = () => {
                         {Object.keys(formData.amenities).map((amenity) => (
                             <div key={amenity} className="flex items-center gap-2 border p-2 rounded-lg">
                                 <label className="flex flex-col">
-                                <span>Amenities <span className="text-red-500">*</span></span>
-                                <label className="flex items-center space-x-2 w-full">
-                                    <input
-                                        type="checkbox"
-                                        name={`amenities.${amenity}.available`}
-                                        checked={formData.amenities[amenity].available}
-                                        onChange={(e) => {
-                                            const isChecked = e.target.checked;
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                amenities: {
-                                                    ...prev.amenities,
-                                                    [amenity]: {
-                                                        available: isChecked,
-                                                        distance_in_km: isChecked ? prev.amenities[amenity].distance_in_km : 0
+                                    <span>Amenities <span className="text-red-500">*</span></span>
+                                    <label className="flex items-center space-x-2 w-full">
+                                        <input
+                                            type="checkbox"
+                                            name={`amenities.${amenity}.available`}
+                                            checked={formData.amenities[amenity].available}
+                                            onChange={(e) => {
+                                                const isChecked = e.target.checked;
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    amenities: {
+                                                        ...prev.amenities,
+                                                        [amenity]: {
+                                                            available: isChecked,
+                                                            distance_in_km: isChecked ? prev.amenities[amenity].distance_in_km : 0
+                                                        }
                                                     }
-                                                }
-                                            }));
-                                        }}
-                                    />
-                                    <span className="capitalize">{amenity.replace('_', ' ')}</span>
-                                </label>
+                                                }));
+                                            }}
+                                        />
+                                        <span className="capitalize">{amenity.replace('_', ' ')}</span>
+                                    </label>
                                 </label>
                                 {formData.amenities[amenity].available && (
                                     <input
@@ -316,11 +351,18 @@ const ListProperty = () => {
                 <div className="flex justify-between mt-6">
                     {step === 0 ? (
                         <button className="bg-gray-500 text-white py-2 px-4 rounded-lg">Back</button>
-                    ): ( <button onClick={prevStep} className="bg-blue-500 text-white py-2 px-4 rounded-lg">Back</button>)}
+                    ) : (<button onClick={prevStep} className="bg-blue-500 text-white py-2 px-4 rounded-lg">Back</button>)}
                     {step < steps.length - 1 ? (
                         <button id="next-button" onClick={nextStep} className={`py-2 px-4 rounded-lg ${isStepValid() ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white animate-shake'}`}>Next</button>
                     ) : (
-                        <button className="bg-green-500 text-white py-2 px-4 rounded-lg">Submit</button>
+                        <button
+                            onClick={handleSubmit}
+                            className={`bg-green-500 text-white py-2 px-4 rounded-lg ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={submitting}
+                        >
+                            {submitting ? 'Submitting...' : 'Submit'}
+                        </button>
+
                     )}
                 </div>
             </div>

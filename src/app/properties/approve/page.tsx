@@ -93,37 +93,55 @@ const ApproveRequests = () => {
         <div className="min-h-screen bg-gray-50">
             <Navbar />
             <div className="max-w-4xl mx-auto mt-20 p-6 bg-white shadow-lg rounded-lg">
-                <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Approval Requests</h1>
-                {requests.length === 0 ? (
-                    <p className="text-center text-gray-600">No pending approval requests.</p>
-                ) : (
-                    requests.map((req) => (
-                        <div key={req.uuid} className="flex items-center justify-between border p-4 rounded-lg mb-4 bg-white shadow">
-                            <div>
-                                <p className="text-lg font-semibold">Request ID: {req.uuid}</p>
-                                <p className="text-gray-600">Property ID: {req.property}</p>
-                                <p className="text-gray-600">Requested By: {req.requested_by}</p>
-                            </div>
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => handleApprove(req.uuid)}
-                                    className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:bg-gray-400"
-                                    disabled={processing}
-                                >
-                                    <FaCheckCircle className="inline mr-2" /> {processing ? "Processing..." : "Approve"}
-                                </button>
-                                <button
-                                    onClick={() => setSelectedRequest(req)}
-                                    className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition disabled:bg-gray-400"
-                                    disabled={processing}
-                                >
-                                    <FaTimesCircle className="inline mr-2" /> Reject
-                                </button>
-                            </div>
-                        </div>
-                    ))
-                )}
+    <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Approval Requests</h1>
+    
+    {requests.length === 0 ? (
+        <p className="text-center text-gray-600">No pending approval requests.</p>
+    ) : (
+        requests.map((req) => (
+            <div key={req.uuid} className="border p-4 rounded-lg mb-4 bg-white shadow">
+                <div className="mb-4">
+                    {/* Property Details */}
+                    <h3 className="text-xl font-semibold">{req.property.name}</h3>
+                    <p className="text-gray-600">{req.property.address}, {req.property.city}, {req.property.state}, {req.property.country} - {req.property.pin_code}</p>
+                    <p className="text-gray-600">Type: <span className="font-medium">{req.property.type}</span></p>
+                    <p className="text-gray-600">Built Area: <span className="font-medium">{req.property.built_area_in_sqft} sqft</span></p>
+                    <p className="text-gray-600">Total Area: <span className="font-medium">{req.property.area_in_sqft} sqft</span></p>
+                    <p className="text-gray-600">Valuation: <span className="font-medium">₹{req.property.valuation.toLocaleString()}</span></p>
+                </div>
+
+                <hr className="my-3" />
+
+                {/* Requested By Details */}
+                <div className="mb-4">
+                    <h4 className="text-lg font-semibold text-gray-700">Requested By</h4>
+                    <p className="text-gray-600"><strong>Name:</strong> {req.requested_by.name}</p>
+                    <p className="text-gray-600"><strong>Email:</strong> {req.requested_by.email}</p>
+                    <p className="text-gray-600"><strong>Phone:</strong> {req.requested_by.phone_number}</p>
+                    <p className="text-gray-600"><strong>User ID:</strong> {req.requested_by.uuid}</p>
+                </div>
+
+                <div className="flex gap-3 mt-3">
+                    <button
+                        onClick={() => handleApprove(req.uuid)}
+                        className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:bg-gray-400"
+                        disabled={processing}
+                    >
+                        <FaCheckCircle className="inline mr-2" /> {processing ? "Processing..." : "Approve"}
+                    </button>
+                    <button
+                        onClick={() => setSelectedRequest(req)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition disabled:bg-gray-400"
+                        disabled={processing}
+                    >
+                        <FaTimesCircle className="inline mr-2" /> Reject
+                    </button>
+                </div>
             </div>
+        ))
+    )}
+</div>
+
 
             {/* Reject Reason Popup */}
             {selectedRequest && (
