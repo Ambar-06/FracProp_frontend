@@ -23,7 +23,7 @@ const ExploreProperties = () => {
         fetchProperties(page);
     }, [page]);
 
-    const fetchProperties = (page) => {
+    const fetchProperties = (page: number) => {
         setLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/?page=${page}&perPage=10`, {
             method: "GET",
@@ -31,7 +31,14 @@ const ExploreProperties = () => {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
-            .then((res) => res.json())
+            .then((res) => {
+                if (res.status === 401 || res.status === 408) {
+                    localStorage.removeItem("token");
+                    window.location.href = "/login";
+                    throw new Error("Unauthorized");
+                }
+                return res.json();
+            })
             .then((data) => {
                 if (data.success) {
                     setProperties(data.data);
@@ -240,10 +247,10 @@ const PropertyCard = ({ property, onInvestNow }) => {
                 </div>
                 {/* User Investment Info */}
                 <div className="mt-4 bg-gray-100 p-3 rounded-lg">
-                        <h4 className="text-lg font-semibold text-gray-800">Your Investment</h4>
-                        <p className="text-gray-700 text-sm">Total Investment: <span className="font-medium">₹{totalInvestment.toLocaleString()}</span></p>
-                        <p className="text-gray-700 text-sm">Your Stake: <span className="font-medium">{(stakePercent).toFixed(3)}%</span></p>
-                    </div>
+                    <h4 className="text-lg font-semibold text-gray-800">Your Investment</h4>
+                    <p className="text-gray-700 text-sm">Total Investment: <span className="font-medium">₹{totalInvestment.toLocaleString()}</span></p>
+                    <p className="text-gray-700 text-sm">Your Stake: <span className="font-medium">{(stakePercent).toFixed(3)}%</span></p>
+                </div>
 
                 {/* Buttons */}
 

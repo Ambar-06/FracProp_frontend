@@ -27,7 +27,14 @@ const Home = () => {
                 "Content-Type": "application/json",
             },
         })
-        .then((res) => res.json())
+        .then((res) => {
+            if (res.status === 401 || res.status === 408) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+                throw new Error("Unauthorized");
+            }
+            return res.json();
+        })
         .then((data) => {
             if (data.success) {
                 setDashboardData({
