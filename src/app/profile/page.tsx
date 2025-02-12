@@ -31,7 +31,14 @@ const Profile = () => {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         })
-        .then((res) => res.json())
+        .then((res) => {
+            if (res.status === 401 || res.status === 408) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+                throw new Error("Unauthorized");
+            }
+            return res.json();
+        })
         .then((data) => {
             if (data.success) {
                 setProfileData(data.data);
@@ -100,13 +107,7 @@ const Profile = () => {
             });
 
             const data = await response.json();
-            if (response.status === 401 || response.status === 408) {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-                throw new Error("Unauthorized");
-            }
-            return response.json();
-            }
+
             if (response.ok) {
                 setSuccessMessage("Profile updated successfully!");
                 setIsEditing(false);
