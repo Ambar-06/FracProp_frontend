@@ -96,7 +96,7 @@ const Home = () => {
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                    { label: "Total Investment", value: `₹${dashboardData?.totalInvestment}` },
+                    { label: "Total Investment", value: `₹${dashboardData?.totalInvestment.toFixed(3)}` },
                     { label: "Valuation Change", value: `${dashboardData?.valuationChange}%` },
                     { label: "Total Rental Income", value: `₹${dashboardData?.totalRentalIncome}` },
                     { label: "Total Properties", value: dashboardData?.totalProperties },

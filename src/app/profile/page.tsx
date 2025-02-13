@@ -65,7 +65,11 @@ const Profile = () => {
     const handleEdit = () => setIsEditing(true);
     const handleCancel = () => {
         setIsEditing(false);
-        setFormData(profileData);
+        setFormData({
+            ...profileData,
+            phone_number: profileData.country_code + profileData.phone_number,
+            country_code: getCountryFromCode(profileData.country_code),
+        });
     };
 
     const handleChange = (e) => {
