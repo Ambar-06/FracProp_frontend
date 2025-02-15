@@ -152,10 +152,20 @@ const ExploreProperties = () => {
                         <input
                             type="number"
                             value={investmentAmount}
-                            onChange={(e) => setInvestmentAmount(e.target.value)}
+                            onChange={(e) => {
+                                const value = Number(e.target.value);
+                                if (value <= (selectedProperty.buyable.amount || 0)) {
+                                    setInvestmentAmount(value);
+                                } else {
+                                    setInvestmentAmount(selectedProperty.buyable.amount);
+                                }
+                            }}
                             className="w-full mt-3 p-2 border border-gray-300 rounded"
                             placeholder="Enter amount (₹)"
+                            min="1"
+                            max={selectedProperty.buyable.amount || ""}
                         />
+
                         {investmentError && <p className="text-red-500 text-sm mt-2">{investmentError}</p>}
 
                         <div className="mt-4 flex justify-end gap-2">
@@ -257,7 +267,7 @@ const PropertyCard = ({ property, onInvestNow }) => {
                 <div className="mt-4 flex flex-col gap-2">
                     <button
                         onClick={() => onInvestNow(property)}
-                        className="w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                        className={`w-full ${percentageSold === 100 ? "bg-gray-500" : "bg-green-500"} text-white px-4 py-2 rounded-md hover:bg-green-600 transition`}
                     >
                         Invest Now
                     </button>
