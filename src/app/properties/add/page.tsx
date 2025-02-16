@@ -46,7 +46,8 @@ const ListProperty = () => {
             hospital: { available: false, distance_in_km: 0 },
             shopping_mall: { available: false, distance_in_km: 0 },
             park: { available: false, distance_in_km: 0 }
-        }
+        },
+        property_images: []
     });
 
     const handleChange = (e) => {
@@ -64,6 +65,14 @@ const ListProperty = () => {
             }));
         }
     };
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        setFormData((prev) => ({
+            ...prev,
+            property_images: files
+        }));
+    };
+
     const isStepValid = () => {
         const requiredFields = {
             0: ['name', 'address', 'city', 'state', 'country', 'pin_code', 'description'],
@@ -88,14 +97,33 @@ const ListProperty = () => {
     };
     const handleSubmit = async () => {
         try {
+            setSubmitting(true);
+            const formDataToSend = new FormData();
+            
+            Object.keys(formData).forEach((key) => {
+                if (key === "property_images" && formData[key]) {
+                    const files = Array.isArray(formData[key]) ? formData[key] : [formData[key]];
+            
+                    files.forEach((file) => {
+                        if (file instanceof File) {
+                            formDataToSend.append("property_images", file);
+                        }
+                    });
+                } else if (typeof formData[key] === 'object') {
+                    formDataToSend.append(key, JSON.stringify(formData[key]));
+                } else {
+                    formDataToSend.append(key, formData[key]);
+                }
+            });
             setSubmitting(true); // Disable button while submitting
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json',
+                    // 'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                // body: JSON.stringify(formData),
+                body: formDataToSend
             });
 
             const data = await res.json();
@@ -231,6 +259,10 @@ const ListProperty = () => {
                         <label className="flex flex-col">
                             <span>Longitude <span className="text-red-500">*</span></span>
                             <input name="longitude" type="number" step="0.000001" placeholder="Longitude" value={formData.longitude} onChange={handleChange} className="border p-2 rounded-lg" />
+                        </label>
+                        <label className="flex flex-col">
+                            <span>Upload Images</span>
+                            <input type="file" multiple onChange={handleFileChange} className="border p-2 rounded-lg" />
                         </label>
                     </div>
                 )}
