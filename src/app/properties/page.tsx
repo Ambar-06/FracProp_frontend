@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 const ExploreProperties = () => {
     const [properties, setProperties] = useState([]);
@@ -192,6 +193,7 @@ const ExploreProperties = () => {
 
 // Property Card Component
 const PropertyCard = ({ property, onInvestNow }) => {
+    const { user } = useAuth();
     const [currentImage, setCurrentImage] = useState(0);
     const images = property.property_images?.length > 0 ? property.property_images : ["/default-property.jpg"];
 
@@ -276,6 +278,13 @@ const PropertyCard = ({ property, onInvestNow }) => {
                             View Details
                         </button>
                     </Link>
+                    {(user?.is_admin || user?.is_staff) &&
+                    <Link href={`/properties/${property.uuid}/edit`}>
+                        <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+                            Edit Property
+                        </button>
+                    </Link>
+                    }
                 </div>
             </div>
         </div>
