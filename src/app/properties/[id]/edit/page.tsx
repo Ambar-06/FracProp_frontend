@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { FaCheckCircle, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { useAuth } from "@/context/AuthContext";
 
 const steps = [
     'Property Details',
@@ -13,16 +14,18 @@ const steps = [
     'Review & Submit'
 ];
 
-
 const EditProperty = () => {
+    const { user } = useAuth();
     const { id } = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
     const propertyId = searchParams.get('id');
     const [step, setStep] = useState(0);
-    const [formData, setFormData] = useState(null);
+    const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [property_images, setPropertyImages] = useState([]); // Stores newly uploaded File objects
+    const [deleted_images, setDeletedImages] = useState([]);
 
     useEffect(() => {
         if (id) {
@@ -33,7 +36,8 @@ const EditProperty = () => {
             })
             .then(res => res.json())
             .then(data => {
-                setFormData(data);
+                console.log(data.data, 'data');
+                setFormData(data.data);
                 setLoading(false);
             })
             .catch(error => {
@@ -41,13 +45,30 @@ const EditProperty = () => {
                 setLoading(false);
             });
         }
-    }, [propertyId]);
+    }, [id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
     
+        // Check if the field is nested (e.g., "other_details.building_health")
+        if (name.includes('.')) {
+            const [parent, child] = name.split('.'); // Split into parent and child keys
+            setFormData((prev) => ({
+                ...prev,
+                [parent]: {
+                    ...prev[parent], // Preserve other fields in the parent object
+                    [child]: value, // Update the nested field
+                },
+            }));
+        } else {
+            // Handle top-level fields
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
+    };
+
     const isStepValid = () => {
         const requiredFields = {
             0: ['name', 'address', 'city', 'state', 'country', 'pin_code', 'description'],
@@ -73,13 +94,29 @@ const EditProperty = () => {
     const handleSubmit = async () => {
         try {
             setSubmitting(true);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/${propertyId}/`, {
+            const formDataToSend = new FormData();
+            
+            Object.keys(formData).forEach((key) => {
+                if (key === "property_images" && formData[key]) {
+                    const files = Array.isArray(formData[key]) ? formData[key] : [formData[key]];
+                    files.forEach((file) => {
+                        if (file instanceof File) {
+                            formDataToSend.append("property_images", file);
+                        }
+                    });
+                } else if (typeof formData[key] === 'object') {
+                    formDataToSend.append(key, JSON.stringify(formData[key]));
+                } else {
+                    formDataToSend.append(key, formData[key]);
+                }
+            });
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/${id}/`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: formDataToSend
             });
 
             if (res.ok) {
@@ -108,7 +145,24 @@ const EditProperty = () => {
             }
         }
     };
+
     const prevStep = () => setStep((prev) => prev - 1);
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        setFormData((prev) => ({
+            ...prev,
+            property_images: [...prev.property_images, ...files]
+        }));
+    };
+
+    const handleDeleteImage = (index) => {
+        const updatedImages = formData.property_images.filter((_, i) => i !== index);
+        setFormData(prev => ({
+            ...prev,
+            property_images: updatedImages
+        }));
+    };
 
     if (loading) return <div>Loading...</div>;
     if (!formData) return <div>Property not found</div>;
@@ -147,19 +201,19 @@ const EditProperty = () => {
                         </label>
                         <label className="flex flex-col">
                             <span>City <span className="text-red-500">*</span></span>
-                            <input name="city" placeholder="City" value={formData.city} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="city" placeholder="City" value={formData.city} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} readOnly={user.is_staff && !user.is_admin} />
                         </label>
                         <label className="flex flex-col">
                             <span>State <span className="text-red-500">*</span></span>
-                            <input name="state" placeholder="State" value={formData.state} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="state" placeholder="State" value={formData.state} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} readOnly={user.is_staff && !user.is_admin} />
                         </label>
                         <label className="flex flex-col">
                             <span>Country <span className="text-red-500">*</span></span>
-                            <input name="country" placeholder="Country" value={formData.country} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="country" placeholder="Country" value={formData.country} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} readOnly={user.is_staff && !user.is_admin} />
                         </label>
                         <label className="flex flex-col">
                             <span>Pin Code <span className="text-red-500">*</span></span>
-                            <input name="pin_code" placeholder="Pin Code" value={formData.pin_code} onChange={handleChange} className="border p-2 rounded-lg" required />
+                            <input name="pin_code" placeholder="Pin Code" value={formData.pin_code} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} readOnly={user.is_staff && !user.is_admin}/>
                         </label>
                         <label className="flex flex-col">
                             <span>Description <span className="text-red-500">*</span></span>
@@ -172,7 +226,7 @@ const EditProperty = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label className="flex flex-col">
                             <span>Type <span className="text-red-500">*</span></span>
-                            <select name="type" value={formData.type} onChange={handleChange} className="border p-2 rounded-lg">
+                            <select name="type" value={formData.type} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} disabled={user.is_staff && !user.is_admin}>
                             <option value="" disabled hidden>Select an Option</option>
                                 <option value="COMMERCIAL">Commercial</option>
                                 <option value="RESIDENTIAL">Residential</option>
@@ -183,15 +237,15 @@ const EditProperty = () => {
                         </label>
                         <label className="flex flex-col">
                             <span>Number of Floors <span className="text-red-500">*</span></span>
-                            <input name="number_of_floors" placeholder="Number of Floors" value={formData.number_of_floors} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="number_of_floors" placeholder="Number of Floors" value={formData.number_of_floors} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} readOnly={user.is_staff && !user.is_admin} />
                         </label>
                         <label className="flex flex-col">
                             <span>Number of Rooms <span className="text-red-500">*</span></span>
-                            <input name="number_of_rooms" placeholder="Number of Rooms" value={formData.number_of_rooms} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="number_of_rooms" placeholder="Number of Rooms" value={formData.number_of_rooms} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} readOnly={user.is_staff && !user.is_admin} />
                         </label>
                         <label className="flex flex-col">
                             <span>Return Type <span className="text-red-500">*</span></span>
-                            <select name="return_type" value={formData.return_type} onChange={handleChange} className="border p-2 rounded-lg">
+                            <select name="return_type" value={formData.return_type} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} disabled={user.is_staff && !user.is_admin}>
                             <option value="" disabled hidden>Select an Option</option>
                                 <option value="RENT">Rent</option>
                                 <option value="APPRECIATION">Appreciation</option>
@@ -200,7 +254,7 @@ const EditProperty = () => {
                         </label>
                         <label className="flex flex-col">
                             <span>Government Property ID <span className="text-red-500">*</span></span>
-                            <input name="govt_allotted_property_id" placeholder="Government Property ID" value={formData.govt_allotted_property_id} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="govt_allotted_property_id" placeholder="Government Property ID" value={formData.govt_allotted_property_id} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} readOnly={user.is_staff && !user.is_admin}  />
                         </label>
                         <label className="flex flex-col">
                             <span>Built Area in Sqft <span className="text-red-500">*</span></span>
@@ -222,6 +276,35 @@ const EditProperty = () => {
                             <span>Upload Images</span>
                             <input type="file" multiple onChange={handleFileChange} className="border p-2 rounded-lg" />
                         </label>
+                        {/* Display Uploaded Images */}
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                            {formData.property_images.map((image, index) => (
+                                <div key={index} className="relative group rounded-lg overflow-hidden shadow-lg">
+                                    {typeof image === 'string' ? (
+                                        <img 
+                                            src={image} 
+                                            alt={`property-image-${index}`} 
+                                            className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                    ) : image instanceof File || image instanceof Blob ? (
+                                        <img 
+                                            src={URL.createObjectURL(image)} 
+                                            alt={`property-image-${index}`} 
+                                            className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <p className="text-center text-gray-500">Invalid image</p>
+                                    )}
+                                    {/* Delete button with hover effect */}
+                                    <button
+                                        onClick={() => handleDeleteImage(index)}
+                                        className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md hover:bg-red-700"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 
@@ -255,6 +338,7 @@ const EditProperty = () => {
                         </label>
                     </div>
                 )}
+
                 {step === 3 && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {Object.keys(formData.amenities).map((amenity) => (
@@ -337,6 +421,7 @@ const EditProperty = () => {
                         ))}
                     </div>
                 )}
+
                 {/* Navigation Buttons */}
                 <div className="flex justify-between mt-6">
                     {step === 0 ? (
@@ -352,7 +437,6 @@ const EditProperty = () => {
                         >
                             {submitting ? 'Submitting...' : 'Submit'}
                         </button>
-
                     )}
                 </div>
             </div>
