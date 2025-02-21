@@ -18,15 +18,23 @@ const ExploreProperties = () => {
     const [investmentError, setInvestmentError] = useState(null);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [filters, setFilters] = useState({});
+    const [sortBy, setSortBy] = useState("");
     const router = useRouter();
 
     useEffect(() => {
-        fetchProperties(page);
-    }, [page]);
+        fetchProperties(page, filters, sortBy);
+    }, [page, filters, sortBy]);
 
-    const fetchProperties = (page: number) => {
+    const fetchProperties = (page, filters = {}, sortBy = "") => {
         setLoading(true);
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/?page=${page}&perPage=10`, {
+        let url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/?page=${page}&perPage=10`;
+
+        // Add filters to the URL
+        if (filters.type) url += `&type=${filters.type}`;
+        if (sortBy) url += `&sortBy=${sortBy}`;
+
+        fetch(url, {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -108,6 +116,14 @@ const ExploreProperties = () => {
         if (page > 1) setPage(page - 1);
     };
 
+    const handleFilterChange = (filterType, value) => {
+        setFilters({ ...filters, [filterType]: value });
+    };
+
+    const handleSortChange = (sortBy) => {
+        setSortBy(sortBy);
+    };
+
     if (loading) return <p className="text-center mt-20 text-xl text-gray-600">Loading properties...</p>;
     if (error) return <p className="text-center text-red-500 mt-20">{error}</p>;
 
@@ -117,6 +133,9 @@ const ExploreProperties = () => {
 
             <div className="max-w-6xl mx-auto mt-20 p-6">
                 <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Explore Properties</h1>
+
+                {/* Filters and Sort Component */}
+                <Filters onFilterChange={handleFilterChange} onSortChange={handleSortChange} />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {properties.map((property) => (
@@ -146,47 +165,43 @@ const ExploreProperties = () => {
 
             {/* Investment Modal */}
             {selectedProperty && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-semibold text-gray-800">Invest in {selectedProperty.name}</h2>
-                        <p className="text-gray-600 text-sm mt-2">Enter the amount you want to invest:</p>
-                        <input
-                            type="number"
-                            value={investmentAmount}
-                            onChange={(e) => {
-                                const value = Number(e.target.value);
-                                if (value <= (selectedProperty.buyable.amount || 0)) {
-                                    setInvestmentAmount(value);
-                                } else {
-                                    setInvestmentAmount(selectedProperty.buyable.amount);
-                                }
-                            }}
-                            className="w-full mt-3 p-2 border border-gray-300 rounded"
-                            placeholder="Enter amount (₹)"
-                            min="1"
-                            max={selectedProperty.buyable.amount || ""}
-                        />
-
-                        {investmentError && <p className="text-red-500 text-sm mt-2">{investmentError}</p>}
-
-                        <div className="mt-4 flex justify-end gap-2">
-                            <button
-                                onClick={handleCloseModal}
-                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleInvestmentSubmit}
-                                disabled={investing}
-                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-                            >
-                                {investing ? "Investing..." : "Confirm Investment"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <InvestmentModal
+                    selectedProperty={selectedProperty}
+                    investmentAmount={investmentAmount}
+                    setInvestmentAmount={setInvestmentAmount}
+                    investmentError={investmentError}
+                    investing={investing}
+                    handleCloseModal={handleCloseModal}
+                    handleInvestmentSubmit={handleInvestmentSubmit}
+                />
             )}
+        </div>
+    );
+};
+
+// Filters Component
+const Filters = ({ onFilterChange, onSortChange }) => {
+    return (
+        <div className="flex gap-4 mb-6">
+            <select
+                onChange={(e) => onFilterChange("type", e.target.value)}
+                className="p-2 border border-gray-300 rounded"
+            >
+                <option value="">All Types</option>
+                <option value="RESIDENTIAL">Residential</option>
+                <option value="COMMERCIAL">Commercial</option>
+                <option value="AGRICULTURAL">Agricultural</option>
+            </select>
+            <select
+                onChange={(e) => onSortChange(e.target.value)}
+                className="p-2 border border-gray-300 rounded"
+            >
+                <option value="">Sort By</option>
+                <option value="valuation_asc">Valuation: Low to High</option>
+                <option value="valuation_desc">Valuation: High to Low</option>
+                <option value="sold_percentage_asc">Sold Percentage: Low to High</option>
+                <option value="sold_percentage_desc">Sold Percentage: High to Low</option>
+            </select>
         </div>
     );
 };
@@ -195,22 +210,11 @@ const ExploreProperties = () => {
 const PropertyCard = ({ property, onInvestNow }) => {
     const { user } = useAuth();
     const [currentImage, setCurrentImage] = useState(0);
+    const [showDetails, setShowDetails] = useState(false);
     const images = property.property_images?.length > 0 ? property.property_images : ["/default-property.jpg"];
 
     const nextImage = () => setCurrentImage((prev) => (prev + 1) % images.length);
     const prevImage = () => setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
-
-    // Extract user investment data safely
-    const userInvestment = property.user_investments ?? {};
-    const totalInvestment = userInvestment.total_investment ?? 0;
-    const totalAmount = userInvestment.total_amount ?? 0;
-
-    const userOwnership = property.user_percentage_ownership ?? {};
-    const stakePercent = userOwnership.stake_in_percent ?? 0;
-
-    // Use `percentage_sold` field from API response
-
-    const percentageSold = property.sold_percentage ?? 0;
 
     return (
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -244,47 +248,98 @@ const PropertyCard = ({ property, onInvestNow }) => {
                 <h3 className="text-xl font-semibold text-gray-800">{property.name}</h3>
                 <p className="text-gray-600 text-sm">{property.address}, {property.city}, {property.state}, {property.country}</p>
 
-                <p className="text-gray-700 text-sm mt-2">Type: <span className="font-medium">{property.type}</span></p>
-                <p className="text-gray-700 text-sm">Built Area: <span className="font-medium">{property.built_area_in_sqft} sqft</span></p>
-                <p className="text-gray-700 text-sm">Valuation: <span className="font-medium">₹{property.valuation.toLocaleString()}</span></p>
-
                 <div className="mt-4">
-                    <p className="text-gray-700 text-sm">Sold Percentage: <span className="font-medium">{percentageSold.toFixed(4)}%</span></p>
+                    <p className="text-gray-700 text-sm">Sold Percentage: <span className="font-medium">{property.sold_percentage.toFixed(4)}%</span></p>
                     <div className="w-full bg-gray-300 rounded-full h-3 mt-1">
                         <div
                             className="bg-green-500 h-3 rounded-full transition-all duration-500"
-                            style={{ width: `${percentageSold}%` }}
+                            style={{ width: `${property.sold_percentage}%` }}
                         ></div>
                     </div>
                 </div>
-                {/* User Investment Info */}
-                <div className="mt-4 bg-gray-100 p-3 rounded-lg">
-                    <h4 className="text-lg font-semibold text-gray-800">Your Investment</h4>
-                    <p className="text-gray-700 text-sm">Total Investment: <span className="font-medium">₹{totalInvestment.toLocaleString()}</span></p>
-                    <p className="text-gray-700 text-sm">Your Stake: <span className="font-medium">{(stakePercent).toFixed(3)}%</span></p>
-                </div>
+
+                {/* Investment History */}
+                <InvestmentHistory property={property} />
 
                 {/* Buttons */}
-
                 <div className="mt-4 flex flex-col gap-2">
                     <button
                         onClick={() => onInvestNow(property)}
-                        className={`w-full ${percentageSold === 100 ? "bg-gray-500" : "bg-green-500"} text-white px-4 py-2 rounded-md hover:bg-green-600 transition`}
+                        className={`w-full ${property.sold_percentage === 100 ? "bg-gray-500" : "bg-green-500"} text-white px-4 py-2 rounded-md hover:bg-green-600 transition`}
                     >
                         Invest Now
                     </button>
                     <Link href={`/properties/${property.uuid}`}>
                         <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
-                            View Details
-                        </button>
+                        View Details
+                    </button>
                     </Link>
-                    {(user?.is_admin || user?.is_staff) &&
-                    <Link href={`/properties/${property.uuid}/edit`}>
-                        <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
-                            Edit Property
-                        </button>
-                    </Link>
-                    }
+                    {(user?.is_admin || user?.is_staff) && (
+                        <Link href={`/properties/${property.uuid}/edit`}>
+                            <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+                                Edit Property
+                            </button>
+                        </Link>
+                    )}
+                </div>
+            </div>
+
+        </div>
+    );
+};
+
+// Investment History Component
+const InvestmentHistory = ({ property }) => {
+    const { user_investments } = property;
+    return (
+        <div className="mt-4 bg-gray-100 p-3 rounded-lg">
+            <h4 className="text-lg font-semibold text-gray-800">Investment History</h4>
+            <p className="text-gray-700 text-sm">Total Investment: ₹{user_investments.total_investment?.toLocaleString()}</p>
+            <p className="text-gray-700 text-sm">Total Profit: ₹{user_investments.total_profit?.toLocaleString()}</p>
+            <p className="text-gray-700 text-sm">Total Loss: ₹{user_investments.total_loss?.toLocaleString()}</p>
+        </div>
+    );
+};
+
+// Investment Modal Component
+const InvestmentModal = ({
+    selectedProperty,
+    investmentAmount,
+    setInvestmentAmount,
+    investmentError,
+    investing,
+    handleCloseModal,
+    handleInvestmentSubmit,
+}) => {
+    return (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                <h2 className="text-xl font-semibold text-gray-800">Invest in {selectedProperty.name}</h2>
+                <p className="text-gray-600 text-sm mt-2">Enter the amount you want to invest:</p>
+                <input
+                    type="number"
+                    value={investmentAmount}
+                    onChange={(e) => setInvestmentAmount(e.target.value)}
+                    className="w-full mt-3 p-2 border border-gray-300 rounded"
+                    placeholder="Enter amount (₹)"
+                    min="1"
+                    max={selectedProperty.buyable.amount || ""}
+                />
+                {investmentError && <p className="text-red-500 text-sm mt-2">{investmentError}</p>}
+                <div className="mt-4 flex justify-end gap-2">
+                    <button
+                        onClick={handleCloseModal}
+                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleInvestmentSubmit}
+                        disabled={investing}
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+                    >
+                        {investing ? "Investing..." : "Confirm Investment"}
+                    </button>
                 </div>
             </div>
         </div>

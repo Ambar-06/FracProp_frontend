@@ -282,11 +282,11 @@ const EditProperty = () => {
                         </label>
                         <label className="flex flex-col">
                             <span>Built Area in Sqft <span className="text-red-500">*</span></span>
-                            <input name="built_area_in_sqft" type="number" step="0.01" placeholder="Built Area in Sqft" value={formData.built_area_in_sqft} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="built_area_in_sqft" type="number" step="0.01" placeholder="Built Area in Sqft" value={formData.built_area_in_sqft} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} />
                         </label>
                         <label className="flex flex-col">
                             <span>Area in Sqft <span className="text-red-500">*</span></span>
-                            <input name="area_in_sqft" type="number" step="0.01" placeholder="Area in Sqft" value={formData.area_in_sqft} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="area_in_sqft" type="number" step="0.01" placeholder="Area in Sqft" value={formData.area_in_sqft} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} />
                         </label>
                         <label className="flex flex-col">
                             <span>Latitude <span className="text-red-500">*</span></span>
@@ -320,12 +320,14 @@ const EditProperty = () => {
                                         <p className="text-center text-gray-500">Invalid image</p>
                                     )}
                                     {/* Delete button with hover effect */}
+                                    {(user?.is_admin) &&
                                     <button
                                         onClick={() => handleDeleteImage(index)}
                                         className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-md hover:bg-red-700"
                                     >
                                         ✕
                                     </button>
+}
                                 </div>
                             ))}
                         </div>
@@ -336,7 +338,7 @@ const EditProperty = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label className="flex flex-col">
                             <span>Property Valuation <span className="text-red-500">*</span></span>
-                            <input name="valuation" type="number" step="0.01" placeholder="Property Valuation" value={formData.valuation} onChange={handleChange} className="border p-2 rounded-lg" />
+                            <input name="valuation" type="number" step="0.01" placeholder="Property Valuation" value={formData.valuation} onChange={handleChange} className={`border p-2 rounded-lg ${user.is_staff && !user.is_admin ? "bg-gray-100 cursor-not-allowed" : ""}`} readOnly={user.is_staff && !user.is_admin} />
                         </label>
                         <label className="flex items-center space-x-2">
                             <input
