@@ -7,7 +7,6 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import Navbar from "@/components/Navbar";
 import { FaHome, FaMapMarkerAlt, FaChartLine, FaBuilding, FaCheckCircle, FaMoneyBillWave, FaClock, FaInfoCircle, FaSchool, FaHospital, FaTree, FaShoppingCart, FaShieldAlt } from "react-icons/fa";
 
-
 const PropertyDetail = () => {
   const { id } = useParams();
   const router = useRouter();
@@ -75,6 +74,13 @@ const PropertyDetail = () => {
     }
   }
 
+  // 🏦 Buyable Information
+  const buyablePercentage = property?.buyable?.percentage || 0;
+  const buyableAmount = property?.buyable?.amount || 0;
+
+  // 📜 Investment History Data
+  const investmentHistory = property?.investments_history || [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -83,6 +89,7 @@ const PropertyDetail = () => {
           <FaHome className="text-green-500" /> {property.name}
         </h1>
 
+        {/* 🏡 Property Details & 📊 Investment & Valuation Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* 🏡 Property Details */}
           <div className="bg-white shadow-lg rounded-lg overflow-hidden p-6">
@@ -163,7 +170,43 @@ const PropertyDetail = () => {
                 </BarChart>
               )}
             </ResponsiveContainer>
+
+            {/* 🏦 Buyable Information */}
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-gray-800">Available for Investment</h3>
+              <p className="text-gray-700 text-sm">Percentage: <span className="font-medium">{buyablePercentage.toFixed(2)}%</span></p>
+              <p className="text-gray-700 text-sm">Amount: <span className="font-medium">₹{buyableAmount.toLocaleString()}</span></p>
+            </div>
           </div>
+        </div>
+
+        {/* 📜 Investment History Section (Horizontal Layout) */}
+        <div className="mt-8 bg-white shadow-lg rounded-lg p-6">
+        <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <FaChartLine className="text-blue-500" /> Investment History
+          </h3>
+            {/* 📜 Investment History Table */}
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold text-gray-800">Investment History</h3>
+              <table className="w-full mt-2">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="p-2 text-left">Date</th>
+                    <th className="p-2 text-left">Amount (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {investmentHistory.map((entry: any, index: number) => (
+                    <tr key={index} className="border-b">
+                      <td className="p-2">{new Date(entry[2]).toLocaleDateString()}</td>
+                      <td className="p-2">{entry[1].toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          
+          
         </div>
       </div>
     </div>
