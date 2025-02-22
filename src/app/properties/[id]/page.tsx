@@ -182,31 +182,32 @@ const PropertyDetail = () => {
 
         {/* 📜 Investment History Section (Horizontal Layout) */}
         <div className="mt-8 bg-white shadow-lg rounded-lg p-6">
-        <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <FaChartLine className="text-blue-500" /> Investment History
           </h3>
-            {/* 📜 Investment History Table */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-gray-800">Investment History</h3>
-              <table className="w-full mt-2">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="p-2 text-left">Date</th>
-                    <th className="p-2 text-left">Amount (₹)</th>
+          {/* 📜 Investment History Table */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-gray-800">Investment History</h3>
+            <table className="w-full mt-2">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="p-2 text-left">Date</th>
+                  <th className="p-2 text-left">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                {investmentHistory.map((entry: any, index: number) => (
+                  <tr key={index} className="border-b">
+                    <td className="p-2">{new Date(entry[2]).toLocaleDateString()}</td>
+                    <td className="p-2">{entry[1].toLocaleString()}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {investmentHistory.map((entry: any, index: number) => (
-                    <tr key={index} className="border-b">
-                      <td className="p-2">{new Date(entry[2]).toLocaleDateString()}</td>
-                      <td className="p-2">{entry[1].toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          
-          
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+
         </div>
       </div>
     </div>
