@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, BarChart, Bar } from "recharts";
 import Navbar from "@/components/Navbar";
-import { FaHome, FaMapMarkerAlt, FaChartLine, FaBuilding, FaCheckCircle, FaMoneyBillWave, FaClock, FaInfoCircle, FaSchool, FaHospital, FaTree, FaShoppingCart, FaShieldAlt } from "react-icons/fa";
+import { FaHome, FaChartLine, FaMoneyBillWave, FaInfoCircle, FaSchool, FaHospital, FaTree, FaShoppingCart, FaShieldAlt } from "react-icons/fa";
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -15,6 +15,8 @@ const PropertyDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"valuation" | "investment">("valuation");
   const [currentImage, setCurrentImage] = useState(0);
+  const [visibleInvestments, setVisibleInvestments] = useState(5); // Number of visible investment cards
+  const [showAllInvestments, setShowAllInvestments] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -80,6 +82,12 @@ const PropertyDetail = () => {
 
   // 📜 Investment History Data
   const investmentHistory = property?.investments_history || [];
+
+  // Handle "View More" button click
+  const handleViewMore = () => {
+    setVisibleInvestments(investmentHistory.length); // Show all investments
+    setShowAllInvestments(true); // Disable the "View More" button
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -180,7 +188,7 @@ const PropertyDetail = () => {
           </div>
         </div>
 
-        {/* 📜 Investment History Section (Horizontal Layout) */}
+        {/* 📜 Investment History Section (Table Format) */}
         <div className="mt-8 bg-white shadow-lg rounded-lg p-6">
           <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <FaChartLine className="text-blue-500" /> Investment History
@@ -196,19 +204,26 @@ const PropertyDetail = () => {
                 </tr>
               </thead>
               <tbody>
-
-                {investmentHistory.map((entry: any, index: number) => (
-                  <tr key={index} className="border-b">
+                {investmentHistory.slice(0, visibleInvestments).map((entry: any, index: number) => (
+                  <tr key={index} className="border-b hover:bg-gray-50 transition-colors duration-200">
                     <td className="p-2">{new Date(entry[2]).toLocaleDateString()}</td>
                     <td className="p-2">{entry[1].toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {/* "View More" Button */}
+            {!showAllInvestments && investmentHistory.length > visibleInvestments && (
+              <button
+                onClick={handleViewMore}
+                className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+              >
+                View More
+              </button>
+            )}
           </div>
-
-
         </div>
+       
       </div>
     </div>
   );

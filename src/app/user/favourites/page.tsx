@@ -28,7 +28,7 @@ const ExploreProperties = () => {
 
     const fetchProperties = (page, filters = {}, sortBy = "") => {
         setLoading(true);
-        let url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/?page=${page}&perPage=10`;
+        let url = `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/wishlist/?page=${page}&perPage=10`;
 
         // Add filters to the URL
         if (filters.type) url += `&type=${filters.type}`;
