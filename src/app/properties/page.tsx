@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { FaArrowRight, FaArrowLeft, FaHeart } from "react-icons/fa"; // Import FaHeart
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -210,11 +210,40 @@ const Filters = ({ onFilterChange, onSortChange }) => {
 const PropertyCard = ({ property, onInvestNow }) => {
     const { user } = useAuth();
     const [currentImage, setCurrentImage] = useState(0);
-    const [showDetails, setShowDetails] = useState(false);
+    const [isInWishlist, setIsInWishlist] = useState(property.favorite || false);
+    // Track wishlist status
     const images = property.property_images?.length > 0 ? property.property_images : ["/default-property.jpg"];
 
     const nextImage = () => setCurrentImage((prev) => (prev + 1) % images.length);
     const prevImage = () => setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+
+    // Handle wishlist button click
+    const handleWishlistClick = async () => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/wishlist`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    user_id: user?.uuid,
+                    property_id: property.uuid,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.message || "Failed to update wishlist.");
+
+            // Toggle wishlist status
+            setIsInWishlist(!isInWishlist);
+            alert(isInWishlist ? "Removed from wishlist!" : "Added to wishlist!");
+        } catch (err) {
+            console.error(err);
+            alert("Failed to update wishlist.");
+        }
+    };
 
     return (
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -242,6 +271,13 @@ const PropertyCard = ({ property, onInvestNow }) => {
                         </button>
                     </>
                 )}
+                {/* Heart Button */}
+                <button
+                    onClick={handleWishlistClick}
+                    className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
+                >
+                    <FaHeart className={`text-lg ${isInWishlist ? "text-red-500" : "text-gray-500"}`} />
+                </button>
             </div>
 
             <div className="p-4">
@@ -271,8 +307,8 @@ const PropertyCard = ({ property, onInvestNow }) => {
                     </button>
                     <Link href={`/properties/${property.uuid}`}>
                         <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
-                        View Details
-                    </button>
+                            View Details
+                        </button>
                     </Link>
                     {(user?.is_admin || user?.is_staff) && (
                         <Link href={`/properties/${property.uuid}/edit`}>
@@ -283,7 +319,6 @@ const PropertyCard = ({ property, onInvestNow }) => {
                     )}
                 </div>
             </div>
-
         </div>
     );
 };
@@ -317,14 +352,21 @@ const InvestmentModal = ({
                 <h2 className="text-xl font-semibold text-gray-800">Invest in {selectedProperty.name}</h2>
                 <p className="text-gray-600 text-sm mt-2">Enter the amount you want to invest:</p>
                 <input
-                    type="number"
-                    value={investmentAmount}
-                    onChange={(e) => setInvestmentAmount(e.target.value)}
-                    className="w-full mt-3 p-2 border border-gray-300 rounded"
-                    placeholder="Enter amount (₹)"
-                    min="1"
-                    max={selectedProperty.buyable.amount || ""}
-                />
+                            type="number"
+                            value={investmentAmount}
+                            onChange={(e) => {
+                                const value = Number(e.target.value);
+                                if (value <= (selectedProperty.buyable.amount || 0)) {
+                                    setInvestmentAmount(value);
+                                } else {
+                                    setInvestmentAmount(selectedProperty.buyable.amount);
+                                }
+                            }}
+                            className="w-full mt-3 p-2 border border-gray-300 rounded"
+                            placeholder="Enter amount (₹)"
+                            min="1"
+                            max={selectedProperty.buyable.amount || ""}
+                        />
                 {investmentError && <p className="text-red-500 text-sm mt-2">{investmentError}</p>}
                 <div className="mt-4 flex justify-end gap-2">
                     <button
