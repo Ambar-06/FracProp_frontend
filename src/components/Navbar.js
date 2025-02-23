@@ -98,9 +98,9 @@ const Navbar = () => {
                                 </span>
                             </div>
                             <ul className="py-2">
-                                <li><Link href="/profile" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">My Profile</Link></li>
+                                <li><Link href="/user/profile" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">My Profile</Link></li>
+                                <li><Link href="/user/favourites" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Favourites</Link></li>
                                 <li><Link href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Settings</Link></li>
-                                <li><Link href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Earnings</Link></li>
                                 <li>
                                     <button
                                         onClick={logout}
