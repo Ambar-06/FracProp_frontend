@@ -6,6 +6,7 @@ import Image from "next/image";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, BarChart, Bar } from "recharts";
 import Navbar from "@/components/Navbar";
 import { FaHome, FaChartLine, FaMoneyBillWave, FaInfoCircle, FaSchool, FaHospital, FaTree, FaShoppingCart, FaShieldAlt } from "react-icons/fa";
+import CircularText from "@/components/VerifiiedBanner";
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -95,6 +96,8 @@ const PropertyDetail = () => {
       <div className="max-w-6xl mx-auto mt-20 p-6">
         <h1 className="text-4xl font-bold text-gray-800 text-center mb-6 flex items-center justify-center gap-3">
           <FaHome className="text-green-500" /> {property.name}
+          {/* Add CircularText here */}
+          {/* {property.is_verified && <CircularText />} */}
         </h1>
 
         {/* 🏡 Property Details & 📊 Investment & Valuation Section */}
@@ -122,21 +125,29 @@ const PropertyDetail = () => {
               <p><strong>💰 Valuation:</strong> ₹{property.valuation.toLocaleString()}</p>
               <p><strong>🔐 Investment Lock-in:</strong> {property.investment_lock_in_period_in_months} months</p>
               <p><strong>🏦 Loan Status:</strong> {property.has_loan ? "Yes" : "No"}</p>
-              <p><strong>✔ Verified:</strong> {property.is_verified ? "Yes" : "No"}</p>
             </div>
 
-            {/* 🏥 Nearby Amenities */}
-            <h3 className="text-lg font-semibold text-gray-800 mt-4">Nearby Amenities</h3>
-            <ul className="text-gray-600 text-sm">
-              {Object.entries(property.amenities || {}).map(([key, value]: any) => (
-                <li key={key}>
-                  {key === "school" && <FaSchool className="inline text-blue-500" />}
-                  {key === "hospital" && <FaHospital className="inline text-red-500" />}
-                  {key === "park" && <FaTree className="inline text-green-500" />}
-                  {key === "shopping_mall" && <FaShoppingCart className="inline text-yellow-500" />} {key.charAt(0).toUpperCase() + key.slice(1)} - {value.distance_in_km} km
-                </li>
-              ))}
-            </ul>
+            {/* Nearby Amenities Section */}
+            <div className="flex items-start mt-4">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Nearby Amenities</h3>
+                <ul className="text-gray-600 text-sm">
+                  {Object.entries(property.amenities || {}).map(([key, value]: any) => (
+                    <li key={key}>
+                      {key === "school" && <FaSchool className="inline text-blue-500" />}
+                      {key === "hospital" && <FaHospital className="inline text-red-500" />}
+                      {key === "park" && <FaTree className="inline text-green-500" />}
+                      {key === "shopping_mall" && <FaShoppingCart className="inline text-yellow-500" />} 
+                      {" " + key.charAt(0).toUpperCase() + key.slice(1).replace("_", " ")} - {value.distance_in_km} km
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Verified Badge */}
+              {/* {property.is_verified && <div className="ml-4"><CircularText /></div>} */}
+              <div className="sm:ml-40 ml-2 flex items-center"><CircularText /></div>
+            </div>
 
             {/* Invest Button */}
             <button onClick={() => router.push(`/invest/${property.uuid}`)} className="mt-6 w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
@@ -223,7 +234,6 @@ const PropertyDetail = () => {
             )}
           </div>
         </div>
-       
       </div>
     </div>
   );

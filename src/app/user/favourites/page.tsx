@@ -132,7 +132,7 @@ const ExploreProperties = () => {
             <Navbar />
 
             <div className="max-w-6xl mx-auto mt-20 p-6">
-                <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Explore Properties</h1>
+                <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Favourite Properties</h1>
 
                 {/* Filters and Sort Component */}
                 <Filters onFilterChange={handleFilterChange} onSortChange={handleSortChange} />
