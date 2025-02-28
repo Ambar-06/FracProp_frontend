@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import Navbar from "@/components/Navbar"; // Import Navbar for consistency
 
 const BlogPage = () => {
   const { user } = useAuth();
@@ -43,7 +44,9 @@ const BlogPage = () => {
   if (error) return <p className="text-center text-red-500 mt-20">{error}</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="p-8 space-y-8 bg-gray-50 min-h-screen">
+      <Navbar /> 
+    <div className="max-w-6xl mx-auto mt-20 p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-800 text-center mb-6">Blog & News</h1>
 
@@ -77,6 +80,7 @@ const BlogPage = () => {
           ))}
         </div>
       </div>
+    </div>
     </div>
   );
 };

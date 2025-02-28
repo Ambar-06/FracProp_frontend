@@ -48,7 +48,7 @@ const BlogDetailPage = () => {
 
   return (
     <div className="p-8 space-y-8 bg-gray-50 min-h-screen">
-      <Navbar /> {/* Add Navbar for consistency */}
+      <Navbar /> 
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto mt-20 p-8">
