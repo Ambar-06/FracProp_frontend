@@ -55,7 +55,6 @@ const PropertyDetail = () => {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
           if (data.success) {
             setReviews(data.data);
           } else {
@@ -122,8 +121,6 @@ const PropertyDetail = () => {
       <div className="max-w-6xl mx-auto mt-20 p-6">
         <h1 className="text-4xl font-bold text-gray-800 text-center mb-6 flex items-center justify-center gap-3">
           <FaHome className="text-green-500" /> {property.name}
-          {/* Add CircularText here */}
-          {/* {property.is_verified && <CircularText />} */}
         </h1>
 
         {/* 🏡 Property Details & 📊 Investment & Valuation Section */}
@@ -154,7 +151,7 @@ const PropertyDetail = () => {
             </div>
 
             {/* Nearby Amenities Section */}
-            <div className="flex items-start mt-4">
+            <div className="flex items-start mt-4 justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">Nearby Amenities</h3>
                 <ul className="text-gray-600 text-sm">
@@ -171,8 +168,13 @@ const PropertyDetail = () => {
               </div>
 
               {/* Verified Badge */}
+              {/* {property.is_verified && (
+                
+              )} */}
               {/* {property.is_verified && <div className="ml-4"><CircularText /></div>} */}
-              <div className="sm:ml-40 ml-2 flex items-center"><CircularText /></div>
+              <div className="ml-8">
+                  <CircularText />
+                </div>
             </div>
 
             {/* Invest Button */}
