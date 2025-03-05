@@ -22,6 +22,12 @@ const PropertyDetail = () => {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
 
+  // State for review form
+  const [rating, setRating] = useState<number>(0);
+  const [reviewText, setReviewText] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   useEffect(() => {
     if (id) {
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/${id}`, {
@@ -68,6 +74,47 @@ const PropertyDetail = () => {
         });
     }
   }, [id]);
+
+  // Function to handle review submission
+  const handleSubmitReview = async () => {
+    if (!rating || !reviewText) {
+      setSubmitError("Please provide a rating and review.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/review/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rating,
+          review: reviewText,
+          property_id: id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Add the new review to the reviews list
+        setReviews([...reviews, data.data]);
+        setRating(0);
+        setReviewText("");
+      } else {
+        setSubmitError(data.message || "Failed to submit review.");
+      }
+    } catch (err) {
+      setSubmitError("An error occurred while submitting the review.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (loading) return <p className="text-center mt-20 text-xl text-gray-600">Loading property details...</p>;
   if (error) return <p className="text-center text-red-500 mt-20">{error}</p>;
@@ -173,8 +220,8 @@ const PropertyDetail = () => {
               )} */}
               {/* {property.is_verified && <div className="ml-4"><CircularText /></div>} */}
               <div className="ml-8">
-                  <CircularText />
-                </div>
+                <CircularText />
+              </div>
             </div>
 
             {/* Invest Button */}
@@ -273,8 +320,39 @@ const PropertyDetail = () => {
             </div>
           </h3>
 
+          {/* Add Review Form */}
+          <div className="mt-6">
+            <h4 className="text-lg font-semibold text-gray-800">Add Your Review</h4>
+            <div className="mt-4">
+              <div className="flex items-center mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <FaStar
+                    key={star}
+                    className={`cursor-pointer text-2xl ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+                    onClick={() => setRating(star)}
+                  />
+                ))}
+              </div>
+              <textarea
+                className="w-full p-2 border rounded-md"
+                rows={4}
+                placeholder="Write your review..."
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+              />
+              {submitError && <p className="text-red-500 mt-2">{submitError}</p>}
+              <button
+                onClick={handleSubmitReview}
+                disabled={isSubmitting}
+                className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+              >
+                {isSubmitting ? "Submitting..." : "Submit Review"}
+              </button>
+            </div>
+          </div>
+
           {/* User Reviews */}
-          <div>
+          <div className="mt-8">
             <h4 className="text-lg font-semibold text-gray-800">User Reviews</h4>
             {reviewsLoading ? (
               <p className="text-gray-600">Loading reviews...</p>
