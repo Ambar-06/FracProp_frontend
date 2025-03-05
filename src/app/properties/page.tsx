@@ -283,6 +283,14 @@ const PropertyCard = ({ property, onInvestNow }) => {
             <div className="p-4">
                 <h3 className="text-xl font-semibold text-gray-800">{property.name}</h3>
                 <p className="text-gray-600 text-sm">{property.address}, {property.city}, {property.state}, {property.country}</p>
+                 {/* Display Average Rating */}
+                
+                {(typeof property.avg_rating === 'number' && property.avg_rating >= 0) && (
+                    <div className="mt-2 flex items-center">
+                        <span className="text-yellow-500 text-lg">★</span>
+                        <span className="text-gray-700 ml-1">{property.avg_rating.toFixed(1)}</span>
+                    </div>
+                )}
 
                 <div className="mt-4">
                     <p className="text-gray-700 text-sm">Sold Percentage: <span className="font-medium">{property.sold_percentage.toFixed(4)}%</span></p>
