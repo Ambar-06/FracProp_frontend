@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, BarChart, Bar } from "recharts";
 import Navbar from "@/components/Navbar";
-import { FaHome, FaChartLine, FaMoneyBillWave, FaInfoCircle, FaSchool, FaHospital, FaTree, FaShoppingCart, FaShieldAlt } from "react-icons/fa";
+import { FaHome, FaChartLine, FaMoneyBillWave, FaInfoCircle, FaSchool, FaHospital, FaTree, FaShoppingCart, FaShieldAlt, FaStar } from "react-icons/fa";
 import CircularText from "@/components/VerifiiedBanner";
 
 const PropertyDetail = () => {
@@ -16,8 +16,11 @@ const PropertyDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"valuation" | "investment">("valuation");
   const [currentImage, setCurrentImage] = useState(0);
-  const [visibleInvestments, setVisibleInvestments] = useState(5); // Number of visible investment cards
+  const [visibleInvestments, setVisibleInvestments] = useState(5);
   const [showAllInvestments, setShowAllInvestments] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -40,6 +43,29 @@ const PropertyDetail = () => {
         .catch((err) => {
           setError(err.message);
           setLoading(false);
+        });
+
+      // Fetch reviews data
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/review?property_id=${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          if (data.success) {
+            setReviews(data.data);
+          } else {
+            setReviewsError("Failed to fetch reviews.");
+          }
+          setReviewsLoading(false);
+        })
+        .catch((err) => {
+          setReviewsError(err.message);
+          setReviewsLoading(false);
         });
     }
   }, [id]);
@@ -231,6 +257,42 @@ const PropertyDetail = () => {
               >
                 View More
               </button>
+            )}
+          </div>
+        </div>
+
+        {/* 🌟 Average Rating & User Reviews Section */}
+        <div className="mt-8 bg-white shadow-lg rounded-lg p-6">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            Ratings & Reviews
+            <div className="flex items-center">
+              <FaStar className="text-yellow-500" />
+              <span className="ml-2 text-gray-700">{property.avg_rating?.toFixed(1) || "N/A"}</span>
+            </div>
+          </h3>
+
+          {/* User Reviews */}
+          <div>
+            <h4 className="text-lg font-semibold text-gray-800">User Reviews</h4>
+            {reviewsLoading ? (
+              <p className="text-gray-600">Loading reviews...</p>
+            ) : reviewsError ? (
+              <p className="text-red-500">{reviewsError}</p>
+            ) : reviews.length === 0 ? (
+              <p className="text-gray-600">No reviews yet.</p>
+            ) : (
+              <div className="mt-4 space-y-4">
+                {reviews.map((review, index) => (
+                  <div key={index} className="border-b pb-4">
+                    <div className="flex items-center">
+                      <FaStar className="text-yellow-500" />
+                      <span className="ml-2 text-gray-700">{review.rating}</span>
+                    </div>
+                    <p className="text-gray-700 mt-2">{review.review}</p>
+                    <p className="text-gray-500 text-sm mt-2">- {review.user.name}</p>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>
