@@ -49,7 +49,7 @@ const PropertyDetail = () => {
           if (data.success) {
             setProperty(data.data);
             // Check if the user has already submitted a review
-            if (data.data.your_review) {
+            if (data.data.your_review && Object.keys(data.data.your_review).length > 0) {
               setYourReview(data.data.your_review);
             }
           } else {
