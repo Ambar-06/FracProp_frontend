@@ -7,6 +7,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import Navbar from "@/components/Navbar";
 import { FaHome, FaChartLine, FaMoneyBillWave, FaInfoCircle, FaSchool, FaHospital, FaTree, FaShoppingCart, FaShieldAlt, FaStar } from "react-icons/fa";
 import CircularText from "@/components/VerifiiedBanner";
+import { useAuth } from "@/context/AuthContext"; 
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -28,6 +29,12 @@ const PropertyDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // State for user's review
+  const [yourReview, setYourReview] = useState<any>(null);
+
+  // Get logged-in user data from AuthContext
+  const { user } = useAuth(); // Destructure user from useAuth
+
   useEffect(() => {
     if (id) {
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/${id}`, {
@@ -41,6 +48,10 @@ const PropertyDetail = () => {
         .then((data) => {
           if (data.success) {
             setProperty(data.data);
+            // Check if the user has already submitted a review
+            if (data.data.your_review) {
+              setYourReview(data.data.your_review);
+            }
           } else {
             setError("Failed to fetch property details.");
           }
@@ -104,6 +115,8 @@ const PropertyDetail = () => {
       if (data.success) {
         // Add the new review to the reviews list
         setReviews([...reviews, data.data]);
+        // Update the user's review
+        setYourReview(data.data);
         setRating(0);
         setReviewText("");
       } else {
@@ -321,35 +334,62 @@ const PropertyDetail = () => {
           </h3>
 
           {/* Add Review Form */}
-          <div className="mt-6">
-            <h4 className="text-lg font-semibold text-gray-800">Add Your Review</h4>
-            <div className="mt-4">
-              <div className="flex items-center mb-4">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <FaStar
-                    key={star}
-                    className={`cursor-pointer text-2xl ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
-                    onClick={() => setRating(star)}
-                  />
-                ))}
-              </div>
-              <textarea
-                className="w-full p-2 border rounded-md"
-                rows={4}
-                placeholder="Write your review..."
-                value={reviewText}
-                onChange={(e) => setReviewText(e.target.value)}
-              />
-              {submitError && <p className="text-red-500 mt-2">{submitError}</p>}
-              <button
-                onClick={handleSubmitReview}
-                disabled={isSubmitting}
-                className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
-              >
-                {isSubmitting ? "Submitting..." : "Submit Review"}
-              </button>
+          {!yourReview && (
+            <div className="mt-6">
+              <h4 className="text-lg font-semibold text-gray-800">Add Your Review</h4>
+              <div className="mt-4">
+                <div className="flex items-center mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <FaStar
+                      key={star}
+                      className={`cursor-pointer text-2xl ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+                      onClick={() => setRating(star)}
+                    />
+                  ))}
+                </div>
+                <textarea
+                  className="w-full p-2 border rounded-md"
+                  rows={4}
+                  placeholder="Write your review..."
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                />
+                {submitError && <p className="text-red-500 mt-2">{submitError}</p>}
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={isSubmitting}
+                  className="mt-4 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Review"}
+                </button>
             </div>
           </div>
+          )}
+
+          {/* Show Your Review */}
+          {yourReview && (
+            <div className="mt-6">
+              <h4 className="text-lg font-semibold text-gray-800">Your Review</h4>
+              <div className="mt-4">
+                <div className="flex items-center">
+                  {/* Display star rating */}
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <FaStar
+                      key={star}
+                      className={`text-2xl ${star <= yourReview.rating ? "text-yellow-500" : "text-gray-300"}`}
+                    />
+                  ))}
+                  <span className="ml-2 text-gray-700">{yourReview.rating}</span>
+                </div>
+                {/* Display review text */}
+                <p className="text-gray-700 mt-2">{yourReview.review}</p>
+                {/* Display review date */}
+                <p className="text-gray-500 text-sm mt-2">
+                  Reviewed on {new Date(yourReview.date).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* User Reviews */}
           <div className="mt-8">
@@ -362,16 +402,18 @@ const PropertyDetail = () => {
               <p className="text-gray-600">No reviews yet.</p>
             ) : (
               <div className="mt-4 space-y-4">
-                {reviews.map((review, index) => (
-                  <div key={index} className="border-b pb-4">
-                    <div className="flex items-center">
-                      <FaStar className="text-yellow-500" />
-                      <span className="ml-2 text-gray-700">{review.rating}</span>
+                {reviews
+                  .filter((review) => review.user.uuid !== user.uuid) // Filter out the logged-in user's review
+                  .map((review, index) => (
+                    <div key={index} className="border-b pb-4">
+                      <div className="flex items-center">
+                        <FaStar className="text-yellow-500" />
+                        <span className="ml-2 text-gray-700">{review.rating}</span>
+                      </div>
+                      <p className="text-gray-700 mt-2">{review.review}</p>
+                      <p className="text-gray-500 text-sm mt-2">- {review.user.name}</p>
                     </div>
-                    <p className="text-gray-700 mt-2">{review.review}</p>
-                    <p className="text-gray-500 text-sm mt-2">- {review.user.name}</p>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>
