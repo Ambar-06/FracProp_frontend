@@ -403,7 +403,7 @@ const PropertyDetail = () => {
             ) : (
               <div className="mt-4 space-y-4">
                 {reviews
-                  .filter((review) => review.user.uuid !== user.uuid) // Filter out the logged-in user's review
+                  .filter((review) => review.user?.uuid !== user?.uuid) // Filter out the logged-in user's review
                   .map((review, index) => (
                     <div key={index} className="border-b pb-4">
                       <div className="flex items-center">
@@ -411,7 +411,7 @@ const PropertyDetail = () => {
                         <span className="ml-2 text-gray-700">{review.rating}</span>
                       </div>
                       <p className="text-gray-700 mt-2">{review.review}</p>
-                      <p className="text-gray-500 text-sm mt-2">- {review.user.name}</p>
+                      <p className="text-gray-500 text-sm mt-2">- {review.user?.name}</p>
                     </div>
                   ))}
               </div>
