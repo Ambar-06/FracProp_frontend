@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
-import { FaCheckCircle, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { CheckCircle, ArrowRight, ArrowLeft, Upload, Home, Building, DollarSign, MapPin, Landmark } from 'lucide-react';
 
 const steps = [
     'Property Details',
@@ -65,6 +65,7 @@ const ListProperty = () => {
             }));
         }
     };
+    
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         setFormData((prev) => ({
@@ -95,6 +96,7 @@ const ListProperty = () => {
         }
         return true;
     };
+    
     const handleSubmit = async () => {
         try {
             setSubmitting(true);
@@ -115,14 +117,12 @@ const ListProperty = () => {
                     formDataToSend.append(key, formData[key]);
                 }
             });
-            setSubmitting(true); // Disable button while submitting
+            
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}properties/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    // 'Content-Type': 'application/json',
                 },
-                // body: JSON.stringify(formData),
                 body: formDataToSend
             });
 
@@ -153,157 +153,338 @@ const ListProperty = () => {
             }
         }
     };
+    
     const prevStep = () => setStep((prev) => prev - 1);
 
+    // Step icons
+    const stepIcons = [
+        <Home key="home" className="w-5 h-5" />,
+        <Building key="building" className="w-5 h-5" />,
+        <DollarSign key="dollar" className="w-5 h-5" />,
+        <MapPin key="map" className="w-5 h-5" />,
+        <CheckCircle key="check" className="w-5 h-5" />
+    ];
+
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <Navbar />
-            <div className="max-w-6xl mx-auto mt-20 p-6 bg-white shadow-lg rounded-lg">
-                <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">List Your Property</h1>
+            <div className="pt-28 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+                        List Your Property
+                    </h1>
+                    <p className="text-gray-600 max-w-2xl mx-auto">
+                        Complete the form below to list your property for investment opportunities.
+                    </p>
+                </div>
 
                 {/* Progress Indicator */}
-                <ol className="flex justify-between mb-8">
-                    {steps.map((label, index) => (
-                        <li key={index}>
-                            <div className={`w-full p-4 border rounded-lg flex items-center justify-between transition ${index < step ? 'bg-green-50 border-green-300 text-green-700' :
-                                index === step ? 'bg-blue-100 border-blue-300 text-blue-700' :
-                                    'bg-gray-100 border-gray-300 text-gray-900'
+                <div className="mb-12">
+                    <div className="flex justify-between items-center">
+                        {steps.map((label, index) => (
+                            <div key={index} className="flex flex-col items-center relative">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                    index < step ? 'bg-green-500 text-white' :
+                                    index === step ? 'bg-purple-600 text-white' :
+                                    'bg-gray-200 text-gray-500'
                                 }`}>
-                                <h3 className="font-medium">{index + 1}. {label}</h3>
-                                {index < step ? <FaCheckCircle className="text-green-500" /> : index === step ? <FaArrowRight className="text-blue-500" /> : null}
+                                    {stepIcons[index]}
+                                </div>
+                                <span className={`text-xs mt-2 font-medium ${
+                                    index <= step ? 'text-gray-900' : 'text-gray-500'
+                                }`}>
+                                    {label}
+                                </span>
+                                {index < steps.length - 1 && (
+                                    <div className={`absolute top-5 left-10 w-[calc(100%-20px)] h-0.5 ${
+                                        index < step ? 'bg-green-500' : 'bg-gray-200'
+                                    }`}></div>
+                                )}
                             </div>
-                        </li>
-                    ))}
-                </ol>
-
-                {/* Step Content */}
-                {step === 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label className="flex flex-col">
-                            <span>Property Name <span className="text-red-500">*</span></span>
-                            <input name="name" placeholder="Property Name" value={formData.name} onChange={handleChange} className="border p-2 rounded-lg" required />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Address <span className="text-red-500">*</span></span>
-                            <input name="address" placeholder="Address" value={formData.address} onChange={handleChange} className="border p-2 rounded-lg" required />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>City <span className="text-red-500">*</span></span>
-                            <input name="city" placeholder="City" value={formData.city} onChange={handleChange} className="border p-2 rounded-lg" required />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>State <span className="text-red-500">*</span></span>
-                            <input name="state" placeholder="State" value={formData.state} onChange={handleChange} className="border p-2 rounded-lg" required />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Country <span className="text-red-500">*</span></span>
-                            <input name="country" placeholder="Country" value={formData.country} onChange={handleChange} className="border p-2 rounded-lg" required />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Pin Code <span className="text-red-500">*</span></span>
-                            <input name="pin_code" placeholder="Pin Code" value={formData.pin_code} onChange={handleChange} className="border p-2 rounded-lg" required />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Description <span className="text-red-500">*</span></span>
-                            <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="border p-2 rounded-lg col-span-2" required></textarea>
-                        </label>
+                        ))}
                     </div>
-                )}
+                </div>
 
-                {step === 1 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label className="flex flex-col">
-                            <span>Type <span className="text-red-500">*</span></span>
-                            <select name="type" value={formData.type} onChange={handleChange} className="border p-2 rounded-lg">
-                            <option value="" disabled hidden>Select an Option</option>
-                                <option value="COMMERCIAL">Commercial</option>
-                                <option value="RESIDENTIAL">Residential</option>
-                                <option value="INDUSTRIAL">Industrial</option>
-                                <option value="AGRICULTURAL">Agricultural</option>
-                                <option value="OTHER">Other</option>
-                            </select>
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Number of Floors <span className="text-red-500">*</span></span>
-                            <input name="number_of_floors" placeholder="Number of Floors" value={formData.number_of_floors} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Number of Rooms <span className="text-red-500">*</span></span>
-                            <input name="number_of_rooms" placeholder="Number of Rooms" value={formData.number_of_rooms} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Return Type <span className="text-red-500">*</span></span>
-                            <select name="return_type" value={formData.return_type} onChange={handleChange} className="border p-2 rounded-lg">
-                            <option value="" disabled hidden>Select an Option</option>
-                                <option value="RENT">Rent</option>
-                                <option value="APPRECIATION">Appreciation</option>
-                                <option value="OTHER">Other</option>
-                            </select>
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Government Property ID <span className="text-red-500">*</span></span>
-                            <input name="govt_allotted_property_id" placeholder="Government Property ID" value={formData.govt_allotted_property_id} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Built Area in Sqft <span className="text-red-500">*</span></span>
-                            <input name="built_area_in_sqft" type="number" step="0.01" placeholder="Built Area in Sqft" value={formData.built_area_in_sqft} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Area in Sqft <span className="text-red-500">*</span></span>
-                            <input name="area_in_sqft" type="number" step="0.01" placeholder="Area in Sqft" value={formData.area_in_sqft} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Latitude <span className="text-red-500">*</span></span>
-                            <input name="latitude" type="number" step="0.000001" placeholder="Latitude" value={formData.latitude} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Longitude <span className="text-red-500">*</span></span>
-                            <input name="longitude" type="number" step="0.000001" placeholder="Longitude" value={formData.longitude} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Upload Images</span>
-                            <input type="file" multiple onChange={handleFileChange} className="border p-2 rounded-lg" />
-                        </label>
-                    </div>
-                )}
+                {/* Form Container */}
+                <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                    {/* Step Content */}
+                    {step === 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Property Name <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="name" 
+                                    placeholder="Property Name" 
+                                    value={formData.name} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                    required 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Address <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="address" 
+                                    placeholder="Address" 
+                                    value={formData.address} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                    required 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">City <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="city" 
+                                    placeholder="City" 
+                                    value={formData.city} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                    required 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">State <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="state" 
+                                    placeholder="State" 
+                                    value={formData.state} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                    required 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Country <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="country" 
+                                    placeholder="Country" 
+                                    value={formData.country} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                    required 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Pin Code <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="pin_code" 
+                                    placeholder="Pin Code" 
+                                    value={formData.pin_code} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                    required 
+                                />
+                            </label>
+                            <label className="flex flex-col md:col-span-2">
+                                <span className="text-gray-700 font-medium mb-1">Description <span className="text-red-500">*</span></span>
+                                <textarea 
+                                    name="description" 
+                                    placeholder="Description" 
+                                    value={formData.description} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[120px]" 
+                                    required
+                                ></textarea>
+                            </label>
+                        </div>
+                    )}
 
-                {step === 2 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label className="flex flex-col">
-                            <span>Property Valuation <span className="text-red-500">*</span></span>
-                            <input name="valuation" type="number" step="0.01" placeholder="Property Valuation" value={formData.valuation} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex items-center space-x-2">
-                            <input type="checkbox" name="has_loan" checked={formData.has_loan} onChange={handleChange} className="border p-2 rounded-lg" />
-                            <span>Has Loan</span>
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Lock-in Period for Investments <span className="text-red-500">*</span></span>
-                            <input name="investment_lock_in_period_in_months" type="number" placeholder="Lock-in Period for Investments" value={formData.investment_lock_in_period_in_months} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Construction Age in Years <span className="text-red-500">*</span></span>
-                            <input name="other_details.construction_age_in_years" type="number" placeholder="Construction Age in Years" value={formData.other_details.construction_age_in_years} onChange={handleChange} className="border p-2 rounded-lg" />
-                        </label>
-                        <label className="flex flex-col">
-                            <span>Building Health <span className="text-red-500">*</span></span>
-                            <select name="other_details.building_health" value={formData.other_details.building_health} onChange={handleChange} className="border p-2 rounded-lg">
-                            <option value="" disabled hidden>Select an Option</option>
-                                <option value="EXCELLENT">Excellent</option>
-                                <option value="GOOD">Good</option>
-                                <option value="AVERAGE">Average</option>
-                                <option value="BAD">Bad</option>
-                            </select>
-                        </label>
-                    </div>
-                )}
-                {step === 3 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Object.keys(formData.amenities).map((amenity) => (
-                            <div key={amenity} className="flex items-center gap-2 border p-2 rounded-lg">
-                                <label className="flex flex-col">
-                                    <span>Amenities <span className="text-red-500">*</span></span>
-                                    <label className="flex items-center space-x-2 w-full">
+                    {step === 1 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Type <span className="text-red-500">*</span></span>
+                                <select 
+                                    name="type" 
+                                    value={formData.type} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                    <option value="" disabled hidden>Select an Option</option>
+                                    <option value="COMMERCIAL">Commercial</option>
+                                    <option value="RESIDENTIAL">Residential</option>
+                                    <option value="INDUSTRIAL">Industrial</option>
+                                    <option value="AGRICULTURAL">Agricultural</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Number of Floors <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="number_of_floors" 
+                                    placeholder="Number of Floors" 
+                                    value={formData.number_of_floors} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Number of Rooms <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="number_of_rooms" 
+                                    placeholder="Number of Rooms" 
+                                    value={formData.number_of_rooms} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Return Type <span className="text-red-500">*</span></span>
+                                <select 
+                                    name="return_type" 
+                                    value={formData.return_type} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                    <option value="" disabled hidden>Select an Option</option>
+                                    <option value="RENT">Rent</option>
+                                    <option value="APPRECIATION">Appreciation</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Government Property ID <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="govt_allotted_property_id" 
+                                    placeholder="Government Property ID" 
+                                    value={formData.govt_allotted_property_id} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Built Area in Sqft <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="built_area_in_sqft" 
+                                    type="number" 
+                                    step="0.01" 
+                                    placeholder="Built Area in Sqft" 
+                                    value={formData.built_area_in_sqft} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Area in Sqft <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="area_in_sqft" 
+                                    type="number" 
+                                    step="0.01" 
+                                    placeholder="Area in Sqft" 
+                                    value={formData.area_in_sqft} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Latitude <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="latitude" 
+                                    type="number" 
+                                    step="0.000001" 
+                                    placeholder="Latitude" 
+                                    value={formData.latitude} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Longitude <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="longitude" 
+                                    type="number" 
+                                    step="0.000001" 
+                                    placeholder="Longitude" 
+                                    value={formData.longitude} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col md:col-span-2">
+                                <span className="text-gray-700 font-medium mb-1">Upload Images</span>
+                                <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                    <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                                    <p className="text-sm text-gray-500 mb-2">Drag and drop files here, or click to browse</p>
+                                    <input 
+                                        type="file" 
+                                        multiple 
+                                        onChange={handleFileChange} 
+                                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100" 
+                                    />
+                                </div>
+                            </label>
+                        </div>
+                    )}
+
+                    {step === 2 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Property Valuation <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="valuation" 
+                                    type="number" 
+                                    step="0.01" 
+                                    placeholder="Property Valuation" 
+                                    value={formData.valuation} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex items-center space-x-2 p-3">
+                                <input 
+                                    type="checkbox" 
+                                    name="has_loan" 
+                                    checked={formData.has_loan} 
+                                    onChange={handleChange} 
+                                    className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500" 
+                                />
+                                <span className="text-gray-700 font-medium">Has Loan</span>
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Lock-in Period for Investments (months) <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="investment_lock_in_period_in_months" 
+                                    type="number" 
+                                    placeholder="Lock-in Period for Investments" 
+                                    value={formData.investment_lock_in_period_in_months} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Construction Age in Years <span className="text-red-500">*</span></span>
+                                <input 
+                                    name="other_details.construction_age_in_years" 
+                                    type="number" 
+                                    placeholder="Construction Age in Years" 
+                                    value={formData.other_details.construction_age_in_years} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                                />
+                            </label>
+                            <label className="flex flex-col">
+                                <span className="text-gray-700 font-medium mb-1">Building Health <span className="text-red-500">*</span></span>
+                                <select 
+                                    name="other_details.building_health" 
+                                    value={formData.other_details.building_health} 
+                                    onChange={handleChange} 
+                                    className="border border-gray-200 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                    <option value="" disabled hidden>Select an Option</option>
+                                    <option value="EXCELLENT">Excellent</option>
+                                    <option value="GOOD">Good</option>
+                                    <option value="AVERAGE">Average</option>
+                                    <option value="BAD">Bad</option>
+                                </select>
+                            </label>
+                        </div>
+                    )}
+
+                    {step === 3 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {Object.keys(formData.amenities).map((amenity) => (
+                                <div key={amenity} className="bg-gray-50 p-4 rounded-lg">
+                                    <div className="flex items-center mb-3">
                                         <input
                                             type="checkbox"
                                             name={`amenities.${amenity}.available`}
@@ -321,81 +502,125 @@ const ListProperty = () => {
                                                     }
                                                 }));
                                             }}
+                                            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500 mr-2"
                                         />
-                                        <span className="capitalize">{amenity.replace('_', ' ')}</span>
-                                    </label>
-                                </label>
-                                {formData.amenities[amenity].available && (
-                                    <input
-                                        type="number"
-                                        name={`amenities.${amenity}.distance_in_km`}
-                                        placeholder="Distance in km"
-                                        value={formData.amenities[amenity].distance_in_km}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            setFormData((prev) => ({
-                                                ...prev,
-                                                amenities: {
-                                                    ...prev.amenities,
-                                                    [amenity]: {
-                                                        ...prev.amenities[amenity],
-                                                        distance_in_km: value
-                                                    }
-                                                }
-                                            }));
-                                        }}
-                                        className="border p-2 rounded-lg w-full"
-                                    />
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
+                                        <span className="text-gray-700 font-medium capitalize">{amenity.replace('_', ' ')}</span>
+                                    </div>
+                                    {formData.amenities[amenity].available && (
+                                        <div className="ml-6">
+                                            <label className="flex flex-col">
+                                                <span className="text-gray-700 text-sm mb-1">Distance in km</span>
+                                                <input
+                                                    type="number"
+                                                    name={`amenities.${amenity}.distance_in_km`}
+                                                    placeholder="Distance in km"
+                                                    value={formData.amenities[amenity].distance_in_km}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            amenities: {
+                                                                ...prev.amenities,
+                                                                [amenity]: {
+                                                                    ...prev.amenities[amenity],
+                                                                    distance_in_km: value
+                                                                }
+                                                            }
+                                                        }));
+                                                    }}
+                                                    className="border border-gray-200 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                />
+                                            </label>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
-                {step === 4 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {Object.entries(formData).map(([key, value]) => (
-                            <div key={key} className="border p-2 rounded-lg bg-gray-100">
-                                <strong className="capitalize">{key.replace(/_/g, ' ')}:</strong>
-                                {typeof value === 'object' && value !== null ? (
-                                    Object.entries(value).map(([subKey, subValue]) => (
-                                        <div key={subKey} className="ml-4">
-                                            <strong className="capitalize">{subKey.replace(/_/g, ' ')}:</strong>
-                                            {typeof subValue === 'object' ? (
-                                                Object.entries(subValue).map(([innerKey, innerValue]) => (
-                                                    <div key={innerKey} className="ml-6">
-                                                        <strong className="capitalize">{innerKey.replace(/_/g, ' ')}:</strong> {innerValue.toString()}
-                                                    </div>
-                                                ))
+                    {step === 4 && (
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-6">Review Your Property Details</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {Object.entries(formData).map(([key, value]) => {
+                                    // Skip property_images in the review
+                                    if (key === 'property_images') return null;
+                                    
+                                    return (
+                                        <div key={key} className="bg-gray-50 p-4 rounded-lg">
+                                            <strong className="text-gray-700 capitalize block mb-2">{key.replace(/_/g, ' ')}:</strong>
+                                            {typeof value === 'object' && value !== null ? (
+                                                <div className="pl-4 border-l-2 border-purple-200">
+                                                    {Object.entries(value).map(([subKey, subValue]) => (
+                                                        <div key={subKey} className="mb-2">
+                                                            <strong className="text-gray-600 capitalize">{subKey.replace(/_/g, ' ')}:</strong>
+                                                            {typeof subValue === 'object' && subValue !== null ? (
+                                                                <div className="pl-4 border-l-2 border-purple-100 mt-1">
+                                                                    {Object.entries(subValue).map(([innerKey, innerValue]) => (
+                                                                        <div key={innerKey} className="text-sm">
+                                                                            <strong className="text-gray-500 capitalize">{innerKey.replace(/_/g, ' ')}:</strong>{' '}
+                                                                            <span className="text-gray-700">{String(innerValue)}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-gray-700 ml-1">{String(subValue)}</span>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             ) : (
-                                                subValue.toString()
+                                                <span className="text-gray-700">{String(value)}</span>
                                             )}
                                         </div>
-                                    ))
-                                ) : (
-                                    <span> {value.toString()} </span>
-                                )}
+                                    );
+                                })}
                             </div>
-                        ))}
-                    </div>
-                )}
-                {/* Navigation Buttons */}
-                <div className="flex justify-between mt-6">
-                    {step === 0 ? (
-                        <button className="bg-gray-500 text-white py-2 px-4 rounded-lg">Back</button>
-                    ) : (<button onClick={prevStep} className="bg-blue-500 text-white py-2 px-4 rounded-lg">Back</button>)}
-                    {step < steps.length - 1 ? (
-                        <button id="next-button" onClick={nextStep} className={`py-2 px-4 rounded-lg ${isStepValid() ? 'bg-blue-500 text-white' : 'bg-gray-500 text-white animate-shake'}`}>Next</button>
-                    ) : (
-                        <button
-                            onClick={handleSubmit}
-                            className={`bg-green-500 text-white py-2 px-4 rounded-lg ${submitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            disabled={submitting}
-                        >
-                            {submitting ? 'Submitting...' : 'Submit'}
-                        </button>
-
+                        </div>
                     )}
+
+                    {/* Navigation Buttons */}
+                    <div className="flex justify-between mt-8">
+                        {step === 0 ? (
+                            <button 
+                                className="px-6 py-2 rounded-lg bg-gray-200 text-gray-500 cursor-not-allowed"
+                                disabled
+                            >
+                                Back
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={prevStep} 
+                                className="px-6 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors flex items-center"
+                            >
+                                <ArrowLeft size={16} className="mr-2" /> Back
+                            </button>
+                        )}
+                        
+                        {step < steps.length - 1 ? (
+                            <button 
+                                id="next-button" 
+                                onClick={nextStep} 
+                                className={`px-6 py-2 rounded-lg flex items-center ${
+                                    isStepValid() 
+                                        ? 'bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:shadow-lg' 
+                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                } transition-all`}
+                            >
+                                Next <ArrowRight size={16} className="ml-2" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleSubmit}
+                                disabled={submitting}
+                                className={`px-6 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:shadow-lg transition-all ${
+                                    submitting ? 'opacity-70 cursor-not-allowed' : ''
+                                }`}
+                            >
+                                {submitting ? 'Submitting...' : 'Submit Property'}
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

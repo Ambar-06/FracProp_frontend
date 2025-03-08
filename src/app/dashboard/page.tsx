@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import { Line } from "react-chartjs-2";
 import Navbar from "@/components/Navbar";
 import "chart.js/auto";
+import { ArrowUpRight, Building, CreditCard, DollarSign, Home, TrendingUp, Wallet } from 'lucide-react';
+import Link from "next/link";
 
-const Home = () => {
+const HomePage = () => {
     const { user, token, logout } = useAuth();
     const router = useRouter();
     const [dashboardData, setDashboardData] = useState(null);
@@ -97,8 +99,28 @@ const Home = () => {
             });
     }, [token, router]);
 
-    if (loading) return <p className="text-center mt-10 text-xl text-gray-600">Loading...</p>;
-    if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center bg-white">
+            <div className="animate-pulse flex flex-col items-center">
+                <div className="h-12 w-12 rounded-full bg-purple-600 animate-spin mb-4"></div>
+                <p className="text-gray-700">Loading your investments...</p>
+            </div>
+        </div>
+    );
+    
+    if (error) return (
+        <div className="min-h-screen flex items-center justify-center bg-white">
+            <div className="bg-white p-8 rounded-lg shadow-lg max-w-md">
+                <p className="text-red-500 text-center">{error}</p>
+                <button 
+                    onClick={() => window.location.reload()} 
+                    className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md transition-all"
+                >
+                    Try Again
+                </button>
+            </div>
+        </div>
+    );
 
     // Chart Data for Investment Growth
     const chartData = {
@@ -107,21 +129,67 @@ const Home = () => {
             {
                 label: "Investment Growth",
                 data: dashboardData?.investmentGrowth?.map((entry) => entry.amount) || [],
-                borderColor: "#4CAF50",
-                backgroundColor: "rgba(76, 175, 80, 0.2)",
+                borderColor: "#a855f7",
+                backgroundColor: "rgba(168, 85, 247, 0.2)",
                 fill: true,
                 tension: 0.4,
+                borderWidth: 3,
+                pointBackgroundColor: "#a855f7",
+                pointBorderColor: "#fff",
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 8,
             },
         ],
     };
 
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false,
+            },
+            tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#333',
+                bodyColor: '#333',
+                borderColor: 'rgba(168, 85, 247, 0.3)',
+                borderWidth: 1,
+                displayColors: false,
+                padding: 10,
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            },
+        },
+        scales: {
+            x: {
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                },
+                ticks: {
+                    color: 'rgba(0, 0, 0, 0.7)',
+                },
+            },
+            y: {
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                },
+                ticks: {
+                    color: 'rgba(0, 0, 0, 0.7)',
+                    callback: function(value) {
+                        return '₹' + value.toLocaleString();
+                    }
+                },
+            },
+        },
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-white">
             <Navbar />
 
-            {/* Main Content */}
+            {/* Hero Section */}
             <div className="pt-28 pb-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                {/* Hero Section */}
                 <div className="text-center mb-12">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
                         Welcome, {user?.first_name} 👋
@@ -134,156 +202,139 @@ const Home = () => {
                 {/* Stats Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
                     {[
-                        { label: "Total Investment", value: `₹${investmentData?.overall_investment?.toLocaleString() || 0}` },
-                        { label: "Valuation Change", value: `${dashboardData?.valuationChange || 0}%` },
-                        { label: "Total Rental Income", value: `₹${dashboardData?.totalRentalIncome || 0}` },
-                        { label: "Total Properties", value: investmentData?.total_properties_invested || 0 },
+                        { 
+                            label: "Total Investment", 
+                            value: `₹${investmentData?.overall_investment?.toLocaleString() || 0}`,
+                            icon: <Wallet className="h-6 w-6 text-purple-500" />,
+                            change: "+12.5%"
+                        },
+                        { 
+                            label: "Valuation Change", 
+                            value: `${dashboardData?.valuationChange || 0}%`,
+                            icon: <TrendingUp className="h-6 w-6 text-green-500" />,
+                            change: "+3.2%"
+                        },
+                        { 
+                            label: "Total Rental Income", 
+                            value: `₹${dashboardData?.totalRentalIncome || 0}`,
+                            icon: <DollarSign className="h-6 w-6 text-blue-500" />,
+                            change: "+5.7%"
+                        },
+                        { 
+                            label: "Total Properties", 
+                            value: investmentData?.total_properties_invested || 0,
+                            icon: <Building className="h-6 w-6 text-pink-500" />,
+                            change: "+1"
+                        },
                     ].map((card, index) => (
-                        <div
-                            key={index}
-                            className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-xl shadow-lg transform transition-all duration-300 hover:scale-105"
-                        >
+                        <div key={index} className="bg-white rounded-xl p-6 shadow-lg transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl border border-gray-100">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-2 rounded-lg bg-gray-50">
+                                    {card.icon}
+                                </div>
+                                <span className="text-xs text-green-500 flex items-center">
+                                    {card.change} <ArrowUpRight className="h-3 w-3 ml-1" />
+                                </span>
+                            </div>
                             <h3 className="text-sm font-medium text-gray-600 mb-1">{card.label}</h3>
-                            <p className="text-2xl font-bold text-green-600">{card.value}</p>
+                            <p className="text-2xl font-bold text-gray-900">{card.value}</p>
                         </div>
                     ))}
                 </div>
 
-                {/* Investment Growth Chart */}
-<div className="bg-white p-6 rounded-xl shadow-lg mb-12 flex flex-col md:flex-row">
-    {/* Chart Section */}
-    <div className="w-full md:w-2/3">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">Investment Growth</h2>
-        <div className="relative h-72 md:h-96">
-            <Line
-                data={chartData}
-                options={{
-                    responsive: true,
-                    plugins: {
-                        tooltip: {
-                            backgroundColor: "rgba(0, 0, 0, 0.8)",
-                            titleColor: "#fff",
-                            bodyColor: "#fff",
-                            borderColor: "rgba(76, 175, 80, 0.3)",
-                            borderWidth: 1,
-                            padding: 10,
-                        },
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                color: "rgba(0, 0, 0, 0.05)",
-                            },
-                            ticks: {
-                                color: "rgba(0, 0, 0, 0.7)",
-                            },
-                        },
-                        y: {
-                            grid: {
-                                color: "rgba(0, 0, 0, 0.05)",
-                            },
-                            ticks: {
-                                color: "rgba(0, 0, 0, 0.7)",
-                                callback: (value) => "₹" + value.toLocaleString(),
-                            },
-                        },
-                    },
-                }}
-            />
-        </div>
-    </div>
-
-    {/* Additional Data Section */}
-    <div className="w-full md:w-1/3 mt-6 md:mt-0 md:pl-6">
-        <h3 className="text-lg font-semibold text-gray-700 mb-4">Key Metrics</h3>
-        <div className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Current Investment Value</p>
-                <p className="text-xl font-bold text-green-600">₹{dashboardData?.totalInvestment}</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Total Returns</p>
-                <p className="text-xl font-bold text-green-600">₹{dashboardData?.totalReturns}</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Total Rental Income</p>
-                <p className="text-xl font-bold text-green-600">₹{dashboardData?.totalRentalIncome}</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Total Properties</p>
-                <p className="text-xl font-bold text-green-600">{dashboardData?.totalProperties}</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-                {/* Investment Breakdown */}
-                <div className="bg-white p-6 rounded-xl shadow-lg mb-12">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-6">Investment Breakdown</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
-                            <p className="text-sm text-gray-600">Invested in Rental Assets</p>
-                            <p className="text-2xl font-bold text-green-600">
-                                ₹{investmentData?.total_invested_in_rental_assests?.toLocaleString() || 0}
-                            </p>
-                        </div>
-                        <div className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
-                            <p className="text-sm text-gray-600">Invested in Non-Rental Assets</p>
-                            <p className="text-2xl font-bold text-green-600">
-                                ₹{investmentData?.total_invested_in_non_rental_assests?.toLocaleString() || 0}
-                            </p>
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Investment Growth Chart */}
+                    <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-lg">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-6">Investment Growth</h2>
+                        <div className="h-80">
+                            <Line data={chartData} options={chartOptions} />
                         </div>
                     </div>
-                </div>
 
-                {/* Properties Section */}
-                <div className="bg-white p-6 rounded-xl shadow-lg mb-12">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-6">Your Properties</h2>
-                    <div className="space-y-4">
-                        {investmentData?.properties?.map((property) => (
-                            <div
-                                key={property.uuid}
-                                className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg"
-                            >
-                                <h3 className="text-lg font-semibold text-gray-800">{property.name}</h3>
-                                <p className="text-sm text-gray-600">{property.address}</p>
-                                <p className="text-sm text-gray-600">
-                                    Investment: ₹{property.investment_amount?.toLocaleString() || 0}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                    Current Valuation: ₹{property.current_valuation?.toLocaleString() || 0}
-                                </p>
+                    {/* Investment Breakdown */}
+                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-6">Investment Breakdown</h2>
+                        <div className="space-y-4">
+                            <div className="p-4 bg-gray-50 rounded-lg">
+                                <div className="flex justify-between items-center mb-2">
+                                    <p className="text-sm text-gray-600">Rental Assets</p>
+                                    <span className="text-xs text-green-500">70%</span>
+                                </div>
+                                <p className="text-xl font-bold text-gray-900">₹{investmentData?.total_invested_in_rental_assests?.toLocaleString() || 0}</p>
+                                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: '70%' }}></div>
+                                </div>
                             </div>
-                        ))}
+                            <div className="p-4 bg-gray-50 rounded-lg">
+                                <div className="flex justify-between items-center mb-2">
+                                    <p className="text-sm text-gray-600">Non-Rental Assets</p>
+                                    <span className="text-xs text-green-500">30%</span>
+                                </div>
+                                <p className="text-xl font-bold text-gray-900">₹{investmentData?.total_invested_in_non_rental_assests?.toLocaleString() || 0}</p>
+                                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '30%' }}></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                {/* Transactions Section */}
-                <div className="bg-white p-6 rounded-xl shadow-lg mb-12">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-6">Recent Transactions</h2>
-                    <ul className="space-y-4">
-                        {(dashboardData?.transactions || []).slice(0, 3).map((tx, index) => (
-                            <li
-                                key={index}
-                                className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg"
-                            >
-                                <span className="font-medium text-gray-700">{tx.description}</span> - ₹{tx.amount}
-                            </li>
-                        ))}
-                    </ul>
-                    <button
-                        className="mt-4 text-blue-500 hover:underline"
-                        onClick={() => router.push("/transactions")}
-                    >
-                        View More
-                    </button>
+                    {/* Properties Section */}
+                    <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-lg">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-semibold text-gray-800">Your Properties</h2>
+                            <Link href="/properties" className="text-purple-600 text-sm hover:text-purple-700 transition-colors">
+                                View All
+                            </Link>
+                        </div>
+                        <div className="space-y-4">
+                            {investmentData?.properties?.slice(0, 3).map((property) => (
+                                <div key={property.uuid} className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div className="flex-shrink-0 p-3 bg-gray-100 rounded-lg mr-4">
+                                        <Home className="h-6 w-6 text-purple-500" />
+                                    </div>
+                                    <div className="flex-grow">
+                                        <h3 className="text-lg font-semibold text-gray-800">{property.name}</h3>
+                                        <p className="text-sm text-gray-600">{property.address}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm text-gray-600">Investment</p>
+                                        <p className="text-lg font-bold text-gray-900">₹{property.investment_amount?.toLocaleString() || 0}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Transactions Section */}
+                    <div className="bg-white rounded-xl p-6 shadow-lg">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-semibold text-gray-800">Recent Transactions</h2>
+                            <Link href="/transactions" className="text-purple-600 text-sm hover:text-purple-700 transition-colors">
+                                View All
+                            </Link>
+                        </div>
+                        <div className="space-y-4">
+                            {(dashboardData?.transactions || []).slice(0, 3).map((tx, index) => (
+                                <div key={index} className="flex items-center p-4 bg-gray-50 rounded-lg">
+                                    <div className="flex-shrink-0 p-3 bg-gray-100 rounded-lg mr-4">
+                                        <CreditCard className="h-5 w-5 text-blue-500" />
+                                    </div>
+                                    <div className="flex-grow">
+                                        <p className="text-sm font-medium text-gray-800">{tx.description}</p>
+                                        <p className="text-xs text-gray-600">Today, 12:30 PM</p>
+                                    </div>
+                                    <p className="text-lg font-bold text-gray-900">₹{tx.amount.toLocaleString()}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Explore Properties Button */}
-                <div className="text-center">
-                    <button
-                        className="bg-gradient-to-r from-green-400 to-blue-500 text-white px-8 py-3 rounded-full text-lg hover:scale-105 transition-transform duration-300"
+                <div className="text-center mt-12">
+                    <button 
+                        className="bg-gradient-to-r from-purple-600 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-300" 
                         onClick={() => router.push("/properties")}
                     >
                         Explore Properties to Invest In
@@ -294,4 +345,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default HomePage;
