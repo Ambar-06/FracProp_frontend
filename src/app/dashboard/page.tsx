@@ -12,7 +12,15 @@ import Link from "next/link";
 const HomePage = () => {
     const { user, token, logout } = useAuth();
     const router = useRouter();
-    const [dashboardData, setDashboardData] = useState(null);
+    const [dashboardData, setDashboardData] = useState({
+        totalInvestment: 0,
+        totalReturns: 0,
+        totalRentalIncome: 0,
+        totalProperties: 0,
+        valuationChange: 0,
+        investmentGrowth: [],
+        transactions: [],
+    });    
     const [investmentData, setInvestmentData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
