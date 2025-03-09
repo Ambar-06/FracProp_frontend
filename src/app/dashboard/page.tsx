@@ -12,15 +12,16 @@ import Link from "next/link";
 const HomePage = () => {
     const { user, token, logout } = useAuth();
     const router = useRouter();
-    const [dashboardData, setDashboardData] = useState({
-        totalInvestment: 0,
-        totalReturns: 0,
-        totalRentalIncome: 0,
-        totalProperties: 0,
-        valuationChange: 0,
-        investmentGrowth: [],
-        transactions: [],
-    });    
+    type InvestmentGrowthType = { date: string; amount: number };
+    const [dashboardData, setDashboardData] = useState<{
+        totalInvestment: number;
+        totalReturns: number;
+        totalRentalIncome: number;
+        totalProperties: number;
+        valuationChange: number;
+        investmentGrowth: InvestmentGrowthType[];
+        transactions: { description: string; amount: number }[];
+    } | null>(null);  
     const [investmentData, setInvestmentData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,17 +52,17 @@ const HomePage = () => {
                 if (data.success) {
                     setDashboardData({
                         totalInvestment: data.data.total_investment,
-                        totalReturns: 0, // Add if API provides this data
+                        totalReturns: 0, // Placeholder for now
                         totalRentalIncome: data.data.total_rental_income,
                         totalProperties: data.data.total_properties,
-                        valuationChange: data.data.increase_in_valuation || 0, // Ensure no undefined values
+                        valuationChange: data.data.increase_in_valuation || 0, 
                         investmentGrowth: [
                             { date: "Jan", amount: 10000 },
                             { date: "Feb", amount: 15000 },
                             { date: "Mar", amount: 20000 },
                             { date: "Apr", amount: 25000 },
                             { date: "May", amount: 30000 },
-                        ],
+                        ] as InvestmentGrowthType[], // Explicitly typecast
                         transactions: [
                             { description: "Property Investment", amount: 100000 },
                             { description: "Rental Income", amount: 5000 },
