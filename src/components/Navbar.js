@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from 'next/link';
 import { useAuth } from "@/context/AuthContext";
+import Image from 'next/image';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -47,7 +48,7 @@ const Navbar = () => {
         <nav className="bg-white dark:bg-gray-900 fixed top-4 left-4 right-4 z-50 shadow-lg p-4 rounded-2xl">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto">
                 <Link href="/" className="flex items-center space-x-3">
-                    <img src="/fp_logo.png" alt="FracProp" className="h-10" />
+                    <Image src="/fp_logo.png" alt="FracProp" className="h-10" />
                 </Link>
 
                 {isDesktop && (
@@ -80,7 +81,7 @@ const Navbar = () => {
                         onClick={toggleUserMenu}
                     >
                         <span className="sr-only">Open user menu</span>
-                        <img
+                        <Image
                             className="w-8 h-8 rounded-full"
                             src={`https://ui-avatars.com/api/?name=${user?.first_name || 'User'}&background=random`}
                             alt="User profile"

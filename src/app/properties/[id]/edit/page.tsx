@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import Navbar from "@/components/Navbar"
 import { CheckCircle, ArrowRight, ArrowLeft, Upload, Home, Building, DollarSign, MapPin, X, Image } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
+import Image from 'next/image';
 
 const steps = ["Property Details", "Specifications", "Valuation & Other Details", "Amenities", "Review & Submit"]
 
@@ -566,13 +567,13 @@ const EditProperty = () => {
                         className="relative group rounded-lg overflow-hidden shadow-md border border-gray-200"
                       >
                         {typeof image === "string" ? (
-                          <img
+                          <Image
                             src={image || "/placeholder.svg"}
                             alt={`property-image-${index}`}
                             className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         ) : image instanceof File || image instanceof Blob ? (
-                          <img
+                          <Image
                             src={URL.createObjectURL(image) || "/placeholder.svg"}
                             alt={`property-image-${index}`}
                             className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"

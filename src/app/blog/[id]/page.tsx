@@ -6,6 +6,7 @@ import DOMPurify from "dompurify" // For sanitizing HTML
 import Navbar from "@/components/Navbar"
 import { Calendar, Clock, User, ArrowLeft, Share2 } from "lucide-react"
 import Link from "next/link"
+import Image from 'next/image';
 
 const BlogDetailPage = () => {
   const { id } = useParams()
@@ -124,7 +125,7 @@ const BlogDetailPage = () => {
           {/* Featured Image (if available) */}
           {blog?.featured_image && (
             <div className="w-full h-64 md:h-96 bg-gray-200">
-              <img
+              <Image
                 src={blog.featured_image || "/placeholder.svg"}
                 alt={blog.title}
                 className="w-full h-full object-cover"

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Shield, Bell, CreditCard, User } from 'lucide-react';
+import Image from 'next/image';
 
 const SettingsPage = () => {
   const { user, token } = useAuth();
@@ -268,7 +269,7 @@ const SecuritySettings = () => {
           <div className="p-6 border border-gray-200 rounded-xl bg-gray-50">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Scan QR Code</h3>
             <div className="flex flex-col items-center">
-              <img src={qrUrl || "/placeholder.svg"} alt="2FA QR Code" className="w-48 h-48 border p-2 rounded-lg bg-white" />
+              <Image src={qrUrl || "/placeholder.svg"} alt="2FA QR Code" className="w-48 h-48 border p-2 rounded-lg bg-white" />
               <p className="text-sm text-gray-600 mt-4 text-center max-w-md">
                 Scan the QR code using an authenticator app (e.g., Google Authenticator, Authy) to set up two-factor authentication.
               </p>

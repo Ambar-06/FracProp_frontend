@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
+import Image from 'next/image';
 
 const Home = () => {
     const { user, token, logout } = useAuth();
@@ -68,7 +69,7 @@ const Home = () => {
             {/* Navbar */}
             <nav className="bg-white text-black p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50 shadow-lg">
                 <div>
-                    <img src="/fp_logo.png" alt="Logo" className="h-10" />
+                    <Image src="/fp_logo.png" alt="Logo" className="h-10" />
                 </div>
                 {/* </nav> */}
 
