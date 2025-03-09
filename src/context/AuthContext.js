@@ -22,10 +22,12 @@ export const AuthProvider = ({ children }) => {
       setToken(storedToken);
 
       // Redirect logged-in users away from login/signup
-      if (pathname === "/login" || pathname === "/signup") {
+      if (pathname === "/login" || pathname === "/signup" || pathname === "/") {
         router.push("/dashboard"); // Redirect to dashboard
       }
-    } else if (!storedToken && pathname !== "/login" && pathname !== "/signup") {
+    } else if (!storedToken && pathname !== "/login" && pathname !== "/signup" && pathname !== "/") {
+      console.log("Pathname:", pathname);
+      console.log("Redirecting to login...");
       router.push("/login"); // Redirect to login if not authenticated
     }
 
