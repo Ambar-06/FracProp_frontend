@@ -11,7 +11,6 @@ const Home = () => {
     const router = useRouter();
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {

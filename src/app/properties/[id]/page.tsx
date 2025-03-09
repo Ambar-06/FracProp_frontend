@@ -6,7 +6,6 @@ import Image from "next/image";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, BarChart, Bar } from "recharts";
 import Navbar from "@/components/Navbar";
 import { Building, ChevronLeft, ChevronRight, DollarSign, Home, Info, MapPin, School, Hospital, TreesIcon as Tree, ShoppingBag, Shield, Star, ArrowRight } from 'lucide-react';
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext"; 
 
 const PropertyDetail = () => {
