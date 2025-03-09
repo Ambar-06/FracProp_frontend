@@ -34,9 +34,14 @@ const BlogDetailPage = () => {
         } else {
           setError("Failed to fetch blog.")
         }
-      } catch (err) {
-        setError(err.message)
-      } finally {
+      }catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred");
+        }
+      }
+       finally {
         setLoading(false)
       }
     }
