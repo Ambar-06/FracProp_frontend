@@ -3,14 +3,21 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { useRouter, usePathname } from 'next/navigation';
 
-const AuthContext = createContext(null);
+interface AuthContextType {
+  user: any;
+  token: string | null;
+  login: (data: any) => void;
+  logout: () => void;
+}
 
-export const AuthProvider = ({ children }) => {
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState<any>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,41 +28,34 @@ export const AuthProvider = ({ children }) => {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
 
-      // Redirect logged-in users away from login/signup
-      if (pathname === "/login" || pathname === "/signup" || pathname === "/") {
-        router.push("/dashboard"); // Redirect to dashboard
+      if (["/login", "/signup", "/"].includes(pathname)) {
+        router.push("/dashboard");
       }
-    } else if (!storedToken && pathname !== "/login" && pathname !== "/signup" && pathname !== "/") {
-      console.log("Pathname:", pathname);
-      console.log("Redirecting to login...");
-      router.push("/login"); // Redirect to login if not authenticated
+    } else if (!storedToken && !["/login", "/signup", "/"].includes(pathname)) {
+      router.push("/login");
     }
-
+    
     setLoading(false);
   }, [pathname, router]);
 
-  const login = (data) => {
+  const login = (data: any) => {
     setUser(data);
     setToken(data.token);
-
     localStorage.setItem("user", JSON.stringify(data));
     localStorage.setItem("token", data.token);
-
-    router.push("/dashboard"); // Redirect to dashboard after login
+    router.push("/dashboard");
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
-
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-
     router.push("/login");
   };
 
   if (loading) {
-    return null; // Show loader if necessary
+    return null;
   }
 
   return (
@@ -65,4 +65,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  return useContext(AuthContext) ?? { user: null, token: null, login: () => {}, logout: () => {} };
+};
