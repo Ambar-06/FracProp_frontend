@@ -68,8 +68,8 @@ const Navbar = () => {
                             </Link>
                         )}
                         <Link href="/blog" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Blogs</Link>
-                        <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
-                        <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Contact</Link>
+                        <Link href="/pricing" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
+                        <Link href="/contact" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Contact</Link>
                     </div>
                 )}
 
@@ -100,7 +100,7 @@ const Navbar = () => {
                             <ul className="py-2">
                                 <li><Link href="/user/profile" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">My Profile</Link></li>
                                 <li><Link href="/user/favourites" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Favourites</Link></li>
-                                <li><Link href="#" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Settings</Link></li>
+                                <li><Link href="/settings" className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">Settings</Link></li>
                                 <li>
                                     <button
                                         onClick={logout}
@@ -154,8 +154,8 @@ const Navbar = () => {
                                 </li>
                             )}
                              <li><Link href="/blog" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Blogs</Link></li>
-                            <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
-                            <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
+                            <li><Link href="#/pricing" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
+                            <li><Link href="/contact" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
                         </ul>
                     </div>
                 </div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { CheckCircle, XCircle, Building, User, MapPin, DollarSign, Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const ApproveRequests = () => {
@@ -86,89 +86,155 @@ const ApproveRequests = () => {
         }
     };
 
-    if (loading) return <p className="text-center mt-20 text-xl text-gray-600">Loading approval requests...</p>;
-    if (error) return <p className="text-center text-red-500 mt-20">{error}</p>;
+    if (loading) return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            <p className="mt-4 text-gray-600">Loading approval requests...</p>
+        </div>
+    );
+    
+    if (error) return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+            <div className="bg-red-100 border border-red-200 text-red-700 px-6 py-4 rounded-lg">
+                <p>{error}</p>
+            </div>
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar />
-            <div className="max-w-4xl mx-auto mt-20 p-6 bg-white shadow-lg rounded-lg">
-    <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Approval Requests</h1>
-    
-    {requests.length === 0 ? (
-        <p className="text-center text-gray-600">No pending approval requests.</p>
-    ) : (
-        requests.map((req) => (
-            <div key={req.uuid} className="border p-4 rounded-lg mb-4 bg-white shadow">
-                <div className="mb-4">
-                    {/* Property Details */}
-                    <h3 className="text-xl font-semibold">{req.property.name}</h3>
-                    <p className="text-gray-600">{req.property.address}, {req.property.city}, {req.property.state}, {req.property.country} - {req.property.pin_code}</p>
-                    <p className="text-gray-600">Type: <span className="font-medium">{req.property.type}</span></p>
-                    <p className="text-gray-600">Built Area: <span className="font-medium">{req.property.built_area_in_sqft} sqft</span></p>
-                    <p className="text-gray-600">Total Area: <span className="font-medium">{req.property.area_in_sqft} sqft</span></p>
-                    <p className="text-gray-600">Valuation: <span className="font-medium">₹{req.property.valuation.toLocaleString()}</span></p>
-                </div>
-
-                <hr className="my-3" />
-
-                {/* Requested By Details */}
-                <div className="mb-4">
-                    <h4 className="text-lg font-semibold text-gray-700">Requested By</h4>
-                    <p className="text-gray-600"><strong>Name:</strong> {req.requested_by.name}</p>
-                    <p className="text-gray-600"><strong>Email:</strong> {req.requested_by.email}</p>
-                    <p className="text-gray-600"><strong>Phone:</strong> {req.requested_by.phone_number}</p>
-                    <p className="text-gray-600"><strong>User ID:</strong> {req.requested_by.uuid}</p>
-                </div>
-
-                <div className="flex gap-3 mt-3">
-                    <button
-                        onClick={() => handleApprove(req.uuid)}
-                        className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition disabled:bg-gray-400"
-                        disabled={processing}
-                    >
-                        <FaCheckCircle className="inline mr-2" /> {processing ? "Processing..." : "Approve"}
-                    </button>
-                    <button
-                        onClick={() => setSelectedRequest(req)}
-                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition disabled:bg-gray-400"
-                        disabled={processing}
-                    >
-                        <FaTimesCircle className="inline mr-2" /> Reject
-                    </button>
-                </div>
+            <div className="container mx-auto px-4 pt-28 pb-16">
+                <h1 className="text-3xl font-bold text-gray-900 mb-8 text-center">Property Approval Requests</h1>
+                
+                {requests.length === 0 ? (
+                    <div className="bg-white p-8 rounded-xl shadow-sm text-center">
+                        <div className="flex justify-center mb-4">
+                            <CheckCircle className="h-16 w-16 text-green-500" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-800 mb-2">All Caught Up!</h3>
+                        <p className="text-gray-600">There are no pending approval requests at this time.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {requests.map((req) => (
+                            <div key={req.uuid} className="bg-white rounded-xl shadow-sm overflow-hidden transition-all hover:shadow-md">
+                                <div className="p-6">
+                                    <div className="flex flex-col md:flex-row md:items-start gap-6">
+                                        <div className="bg-purple-100 rounded-lg p-4 flex items-center justify-center flex-shrink-0">
+                                            <Building className="h-12 w-12 text-purple-600" />
+                                        </div>
+                                        
+                                        <div className="flex-1">
+                                            <h3 className="text-xl font-semibold text-gray-900">{req.property.name}</h3>
+                                            
+                                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="flex items-start">
+                                                    <MapPin className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
+                                                    <p className="text-gray-700">
+                                                        {req.property.address}, {req.property.city}, {req.property.state}, {req.property.country} - {req.property.pin_code}
+                                                    </p>
+                                                </div>
+                                                
+                                                <div className="flex items-center">
+                                                    <Home className="h-5 w-5 text-gray-500 mr-2" />
+                                                    <p className="text-gray-700">Type: <span className="font-medium">{req.property.type}</span></p>
+                                                </div>
+                                                
+                                                <div className="flex items-center">
+                                                    <div className="h-5 w-5 flex items-center justify-center text-gray-500 mr-2">
+                                                        <span className="text-xs font-bold">ft²</span>
+                                                    </div>
+                                                    <p className="text-gray-700">
+                                                        Built Area: <span className="font-medium">{req.property.built_area_in_sqft.toLocaleString()} sqft</span>
+                                                    </p>
+                                                </div>
+                                                
+                                                <div className="flex items-center">
+                                                    <div className="h-5 w-5 flex items-center justify-center text-gray-500 mr-2">
+                                                        <span className="text-xs font-bold">ft²</span>
+                                                    </div>
+                                                    <p className="text-gray-700">
+                                                        Total Area: <span className="font-medium">{req.property.area_in_sqft.toLocaleString()} sqft</span>
+                                                    </p>
+                                                </div>
+                                                
+                                                <div className="flex items-center">
+                                                    <DollarSign className="h-5 w-5 text-gray-500 mr-2" />
+                                                    <p className="text-gray-700">
+                                                        Valuation: <span className="font-medium">₹{req.property.valuation.toLocaleString()}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="mt-6 pt-6 border-t border-gray-100">
+                                                <h4 className="text-lg font-medium text-gray-800 mb-3">Requested By</h4>
+                                                <div className="flex items-start">
+                                                    <User className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
+                                                    <div>
+                                                        <p className="text-gray-700"><span className="font-medium">{req.requested_by.name}</span></p>
+                                                        <p className="text-gray-600 text-sm">{req.requested_by.email} • {req.requested_by.phone_number}</p>
+                                                        <p className="text-gray-500 text-xs mt-1">User ID: {req.requested_by.uuid}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="px-6 py-4 bg-gray-50 flex flex-wrap gap-3 justify-end">
+                                    <button
+                                        onClick={() => handleApprove(req.uuid)}
+                                        className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all disabled:opacity-70"
+                                        disabled={processing}
+                                    >
+                                        <CheckCircle className="w-5 h-5 mr-2" />
+                                        {processing ? "Processing..." : "Approve"}
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedRequest(req)}
+                                        className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all disabled:opacity-70"
+                                        disabled={processing}
+                                    >
+                                        <XCircle className="w-5 h-5 mr-2" />
+                                        Reject
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
-        ))
-    )}
-</div>
-
 
             {/* Reject Reason Popup */}
             {selectedRequest && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-semibold text-gray-800">Reject Request</h2>
-                        <p className="text-gray-600 text-sm mt-2">Enter the reason for rejection:</p>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md mx-4">
+                        <h2 className="text-xl font-semibold text-gray-900 mb-2">Reject Property Request</h2>
+                        <p className="text-gray-600 text-sm mb-4">Please provide a reason for rejecting this property request.</p>
+                        
                         <textarea
                             value={rejectReason}
                             onChange={(e) => setRejectReason(e.target.value)}
-                            className="w-full mt-3 p-2 border border-gray-300 rounded"
-                            placeholder="Enter reason"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            placeholder="Enter reason for rejection"
+                            rows={4}
                         ></textarea>
-                        <div className="mt-4 flex justify-end gap-2">
+                        
+                        <div className="mt-6 flex justify-end gap-3">
                             <button
                                 onClick={() => setSelectedRequest(null)}
-                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
+                                className="px-4 py-2 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-all"
                                 disabled={processing}
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleReject}
-                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition disabled:bg-gray-400"
-                                disabled={processing}
+                                className="px-4 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all disabled:opacity-70"
+                                disabled={!rejectReason.trim() || processing}
                             >
-                                {processing ? "Processing..." : "Confirm Reject"}
+                                {processing ? "Processing..." : "Confirm Rejection"}
                             </button>
                         </div>
                     </div>
