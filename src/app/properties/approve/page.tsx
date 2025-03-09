@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { CheckCircle, XCircle, Building, User, MapPin, DollarSign, Home } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 const ApproveRequests = () => {
     const [requests, setRequests] = useState([]);
@@ -12,7 +11,6 @@ const ApproveRequests = () => {
     const [rejectReason, setRejectReason] = useState('');
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [processing, setProcessing] = useState(false);
-    const router = useRouter();
 
     useEffect(() => {
         const fetchApprovalRequests = async () => {

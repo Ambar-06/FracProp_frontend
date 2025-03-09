@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
-import { CheckCircle, ArrowRight, ArrowLeft, Upload, Home, Building, DollarSign, MapPin, Landmark } from 'lucide-react';
+import { CheckCircle, ArrowRight, ArrowLeft, Upload, Home, Building, DollarSign, MapPin } from 'lucide-react';
 
 const steps = [
     'Property Details',

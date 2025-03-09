@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import Navbar from "@/components/Navbar"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { ArrowLeft, ArrowRight, Building, ChevronDown, Heart, Search, SlidersHorizontal, Star } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/context/AuthContext"
@@ -21,7 +20,6 @@ const ExploreProperties = () => {
   const [filters, setFilters] = useState({})
   const [sortBy, setSortBy] = useState("")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const router = useRouter()
 
   useEffect(() => {
     fetchProperties(page, filters, sortBy)
