@@ -69,7 +69,7 @@ const Navbar = () => {
                         )}
                         <Link href="/blog" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Blogs</Link>
                         <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Pricing</Link>
-                        <Link href="#" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Contact</Link>
+                        <Link href="/contact" className="py-2 px-3 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Contact</Link>
                     </div>
                 )}
 
@@ -155,7 +155,7 @@ const Navbar = () => {
                             )}
                              <li><Link href="/blog" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Blogs</Link></li>
                             <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Pricing</Link></li>
-                            <li><Link href="#" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
+                            <li><Link href="/contact" className="block py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700">Contact</Link></li>
                         </ul>
                     </div>
                 </div>
