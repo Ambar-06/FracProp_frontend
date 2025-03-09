@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Navbar from "@/components/Navbar"
-import { CheckCircle, ArrowRight, ArrowLeft, Upload, Home, Building, DollarSign, MapPin, X, Image } from "lucide-react"
+import { CheckCircle, ArrowRight, ArrowLeft, Upload, Home, Building, DollarSign, MapPin, X, Image as LucideImage } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
 import Image from 'next/image';
 
@@ -580,7 +580,7 @@ const EditProperty = () => {
                           />
                         ) : (
                           <div className="w-full h-40 flex items-center justify-center bg-gray-100">
-                            <Image className="text-gray-400" size={32} />
+                            <LucideImage className="text-gray-400" size={32} />
                             <p className="text-center text-gray-500 ml-2">Invalid image</p>
                           </div>
                         )}
