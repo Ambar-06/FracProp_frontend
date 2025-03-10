@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
         port: '8000',
         pathname: '/media/property_images/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'ui-avatars.com',
+      },
     ],
   },
 };
