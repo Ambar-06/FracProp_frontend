@@ -1,22 +1,26 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar";
-import { Shield, Bell, CreditCard, User } from 'lucide-react';
-import Image from 'next/image';
+import { useState, useEffect } from "react"
+import { useAuth } from "@/context/AuthContext"
+import Navbar from "@/components/Navbar"
+import { Shield, Bell, CreditCard, User } from "lucide-react"
 
 const SettingsPage = () => {
-  const { user, token } = useAuth();
-  const [activeTab, setActiveTab] = useState("profile"); // State to manage the active tab
+  const { user, token } = useAuth()
+  const [activeTab, setActiveTab] = useState("profile") // State to manage the active tab
 
   // Define the tabs and their corresponding content
   const tabs = [
     { id: "profile", label: "Profile", icon: <User className="w-5 h-5 mr-2" />, content: <ProfileSettings /> },
     { id: "security", label: "Security", icon: <Shield className="w-5 h-5 mr-2" />, content: <SecuritySettings /> },
-    { id: "notifications", label: "Notifications", icon: <Bell className="w-5 h-5 mr-2" />, content: <NotificationSettings /> },
+    {
+      id: "notifications",
+      label: "Notifications",
+      icon: <Bell className="w-5 h-5 mr-2" />,
+      content: <NotificationSettings />,
+    },
     { id: "billing", label: "Billing", icon: <CreditCard className="w-5 h-5 mr-2" />, content: <BillingSettings /> },
-  ];
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -58,68 +62,68 @@ const SettingsPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // Example Components for Each Tab
 const ProfileSettings = () => (
   <div>
     <h2 className="text-2xl font-semibold text-gray-900 mb-6">Profile Settings</h2>
     <p className="text-gray-600 mb-6">Update your profile information here.</p>
-    
+
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="Enter your first name"
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="Enter your last name"
           />
         </div>
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-        <input 
-          type="email" 
+        <input
+          type="email"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           placeholder="Enter your email address"
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-        <textarea 
+        <textarea
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           rows={4}
           placeholder="Tell us about yourself"
         ></textarea>
       </div>
-      
+
       <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
         Save Changes
       </button>
     </div>
   </div>
-);
+)
 
 const SecuritySettings = () => {
-  const { token } = useAuth();
-  const [is2FAEnabled, setIs2FAEnabled] = useState<boolean | null>(null);
-  const [qrUrl, setQrUrl] = useState<string | null>(null);
-  const [otp, setOtp] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { token } = useAuth()
+  const [is2FAEnabled, setIs2FAEnabled] = useState<boolean | null>(null)
+  const [qrUrl, setQrUrl] = useState<string | null>(null)
+  const [otp, setOtp] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -129,52 +133,59 @@ const SecuritySettings = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        })
 
-        if (!response.ok) throw new Error("Failed to fetch profile.");
+        if (!response.ok) throw new Error("Failed to fetch profile.")
 
-        const data = await response.json();
+        const data = await response.json()
         if (data.success) {
-          setIs2FAEnabled(data.data.is_2fa_enabled);
+          setIs2FAEnabled(data.data.is_2fa_enabled)
         } else {
-          throw new Error(data.message || "Failed to fetch profile.");
+          throw new Error(data.message || "Failed to fetch profile.")
         }
       } catch (err) {
-        setError(err.message);
+        setError(err.message)
       }
-    };
+    }
 
-    fetchProfile();
-  }, [token]);
+    fetchProfile()
+  }, [token])
 
   const fetchQrCode = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/auth/2fa`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
-      if (!response.ok) throw new Error("Failed to fetch QR code.");
+      if (!response.ok) throw new Error("Failed to fetch QR code.")
 
-      const data = await response.json();
+      const data = await response.json()
       if (data.success) {
-        setQrUrl(data.data.qr_url);
-        setError(null);
+        setQrUrl(data.data.qr_url)
+        setError(null)
       } else {
-        throw new Error(data.message || "Failed to fetch QR code.");
+        throw new Error(data.message || "Failed to fetch QR code.")
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
+  // Reset OTP when QR code is fetched
+  useEffect(() => {
+    if (qrUrl) {
+      setOtp("")
+    }
+  }, [qrUrl])
 
   const activate2FA = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/auth/2fa`, {
         method: "POST",
@@ -183,53 +194,53 @@ const SecuritySettings = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ otp }),
-      });
+      })
 
-      if (!response.ok) throw new Error("Failed to activate 2FA.");
+      if (!response.ok) throw new Error("Failed to activate 2FA.")
 
-      const data = await response.json();
+      const data = await response.json()
       if (data.success) {
-        setSuccess(true);
-        setIs2FAEnabled(true);
-        setError(null);
+        setSuccess(true)
+        setIs2FAEnabled(true)
+        setError(null)
       } else {
-        throw new Error(data.message || "Failed to activate 2FA.");
+        throw new Error(data.message || "Failed to activate 2FA.")
       }
     } catch (err) {
-      setError(err.message);
-      setSuccess(false);
+      setError(err.message)
+      setSuccess(false)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const deactivate2FA = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/auth/2fa`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
-      if (!response.ok) throw new Error("Failed to deactivate 2FA.");
+      if (!response.ok) throw new Error("Failed to deactivate 2FA.")
 
-      const data = await response.json();
+      const data = await response.json()
       if (data.success) {
-        setSuccess(true);
-        setIs2FAEnabled(false);
-        setError(null);
+        setSuccess(true)
+        setIs2FAEnabled(false)
+        setError(null)
       } else {
-        throw new Error(data.message || "Failed to deactivate 2FA.");
+        throw new Error(data.message || "Failed to deactivate 2FA.")
       }
     } catch (err) {
-      setError(err.message);
-      setSuccess(false);
+      setError(err.message)
+      setSuccess(false)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div>
@@ -239,8 +250,10 @@ const SecuritySettings = () => {
       <div className="space-y-8">
         <div className="p-6 border border-gray-200 rounded-xl bg-gray-50">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Two-Factor Authentication (2FA)</h3>
-          <p className="text-gray-600 mb-4">Add an extra layer of security to your account by enabling two-factor authentication.</p>
-          
+          <p className="text-gray-600 mb-4">
+            Add an extra layer of security to your account by enabling two-factor authentication.
+          </p>
+
           {is2FAEnabled === null ? (
             <div className="flex items-center justify-center p-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -269,9 +282,14 @@ const SecuritySettings = () => {
           <div className="p-6 border border-gray-200 rounded-xl bg-gray-50">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Scan QR Code</h3>
             <div className="flex flex-col items-center">
-              <Image src={qrUrl || "/placeholder.svg"} alt="2FA QR Code" className="w-48 h-48 border p-2 rounded-lg bg-white" />
+              <img
+                src={qrUrl || "/placeholder.svg"}
+                alt="2FA QR Code"
+                className="w-48 h-48 border p-2 rounded-lg bg-white"
+              />
               <p className="text-sm text-gray-600 mt-4 text-center max-w-md">
-                Scan the QR code using an authenticator app (e.g., Google Authenticator, Authy) to set up two-factor authentication.
+                Scan the QR code using an authenticator app (e.g., Google Authenticator, Authy) to set up two-factor
+                authentication.
               </p>
             </div>
           </div>
@@ -289,9 +307,10 @@ const SecuritySettings = () => {
                 type="text"
                 placeholder="Enter 6-digit code"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 maxLength={6}
+                autoComplete="off"
               />
               <button
                 className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all"
@@ -315,36 +334,38 @@ const SecuritySettings = () => {
         {success && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-green-600">
-              {is2FAEnabled ? "Two-factor authentication has been activated successfully!" : "Two-factor authentication has been deactivated successfully!"}
+              {is2FAEnabled
+                ? "Two-factor authentication has been activated successfully!"
+                : "Two-factor authentication has been deactivated successfully!"}
             </p>
           </div>
         )}
-        
+
         <div className="p-6 border border-gray-200 rounded-xl bg-gray-50">
           <h3 className="text-lg font-medium text-gray-900 mb-2">Change Password</h3>
           <p className="text-gray-600 mb-4">Update your password to keep your account secure.</p>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Enter your current password"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Enter your new password"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-              <input 
-                type="password" 
+              <input
+                type="password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Confirm your new password"
               />
@@ -356,18 +377,18 @@ const SecuritySettings = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const NotificationSettings = () => (
   <div>
     <h2 className="text-2xl font-semibold text-gray-900 mb-6">Notification Settings</h2>
     <p className="text-gray-600 mb-6">Customize your notification preferences here.</p>
-    
+
     <div className="space-y-6">
       <div className="p-6 border border-gray-200 rounded-xl bg-gray-50">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Email Notifications</h3>
-        
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -379,7 +400,7 @@ const NotificationSettings = () => (
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
             </label>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium text-gray-800">Investment Opportunities</p>
@@ -390,7 +411,7 @@ const NotificationSettings = () => (
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
             </label>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium text-gray-800">Blog Updates</p>
@@ -403,10 +424,10 @@ const NotificationSettings = () => (
           </div>
         </div>
       </div>
-      
+
       <div className="p-6 border border-gray-200 rounded-xl bg-gray-50">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Push Notifications</h3>
-        
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -418,7 +439,7 @@ const NotificationSettings = () => (
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
             </label>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium text-gray-800">Account Security</p>
@@ -431,23 +452,23 @@ const NotificationSettings = () => (
           </div>
         </div>
       </div>
-      
+
       <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
         Save Preferences
       </button>
     </div>
   </div>
-);
+)
 
 const BillingSettings = () => (
   <div>
     <h2 className="text-2xl font-semibold text-gray-900 mb-6">Billing Settings</h2>
     <p className="text-gray-600 mb-6">Manage your billing and payment information here.</p>
-    
+
     <div className="space-y-8">
       <div className="p-6 border border-gray-200 rounded-xl bg-gray-50">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Methods</h3>
-        
+
         <div className="space-y-4">
           <div className="p-4 border border-gray-200 rounded-lg bg-white flex items-center justify-between">
             <div className="flex items-center">
@@ -460,76 +481,78 @@ const BillingSettings = () => (
               </div>
             </div>
             <div className="flex items-center">
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">Default</span>
+              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
+                Default
+              </span>
               <button className="text-gray-500 hover:text-gray-700">Edit</button>
             </div>
           </div>
-          
+
           <button className="inline-flex items-center text-purple-600 font-medium hover:text-purple-700">
             + Add Payment Method
           </button>
         </div>
       </div>
-      
+
       <div className="p-6 border border-gray-200 rounded-xl bg-gray-50">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Billing Address</h3>
-        
+
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Enter your full name"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Company (Optional)</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Enter company name"
               />
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               placeholder="Enter your address"
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="City"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="State/Province"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Postal Code"
               />
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
             <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
@@ -542,12 +565,13 @@ const BillingSettings = () => (
           </div>
         </div>
       </div>
-      
+
       <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
         Save Billing Information
       </button>
     </div>
   </div>
-);
+)
 
-export default SettingsPage;
+export default SettingsPage
+

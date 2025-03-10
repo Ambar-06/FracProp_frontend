@@ -11,7 +11,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [formData, setFormData] = useState({ phone_number: "", country_code: "" })
+  const [formData, setFormData] = useState({ phone_number: undefined, country_code: "" }) // Initialize phone_number as undefined
   const [successMessage, setSuccessMessage] = useState("")
 
   // Function to convert country calling code (+91) to ISO Alpha-2 code (IN)
@@ -47,7 +47,7 @@ const Profile = () => {
 
           setFormData({
             ...data.data,
-            phone_number: fullPhoneNumber,
+            phone_number: fullPhoneNumber || undefined, // Ensure phone_number is undefined if empty
             country_code: getCountryFromCode(data.data.country_code), // Convert country code
           })
         } else {
@@ -66,7 +66,7 @@ const Profile = () => {
     setIsEditing(false)
     setFormData({
       ...profileData,
-      phone_number: profileData.country_code + profileData.phone_number,
+      phone_number: profileData.country_code + profileData.phone_number || undefined, // Ensure phone_number is undefined if empty
       country_code: getCountryFromCode(profileData.country_code),
     })
     setSuccessMessage("")
@@ -78,7 +78,7 @@ const Profile = () => {
   }
 
   const handlePhoneChange = (value) => {
-    setFormData({ ...formData, phone_number: value })
+    setFormData({ ...formData, phone_number: value || undefined }) // Ensure phone_number is undefined if empty
   }
 
   const handleVerifyEmail = async () => {
@@ -134,6 +134,13 @@ const Profile = () => {
       setSuccessMessage("")
 
       const { phone_number, email, first_name, last_name } = formData
+
+      // Validate phone number
+      if (!phone_number) {
+        setError("Please enter a valid phone number.")
+        setLoading(false)
+        return
+      }
 
       const phoneNumber = parsePhoneNumber(phone_number)
 
@@ -328,6 +335,7 @@ const Profile = () => {
                         value={formData?.phone_number}
                         onChange={handlePhoneChange}
                         disabled={!isEditing}
+                        placeholder="Enter phone number" // Add a placeholder
                         className={`w-full pl-10 p-3 border rounded-lg focus:outline-none ${
                           !isEditing
                             ? "bg-gray-50 text-gray-500 cursor-not-allowed border-gray-200"
@@ -392,4 +400,3 @@ const Profile = () => {
 }
 
 export default Profile
-
