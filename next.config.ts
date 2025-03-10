@@ -25,6 +25,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'ui-avatars.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'fracprop.pythonanywhere.com',
+        pathname: "/media/uploads/**",
+      },
+      {
+        protocol: 'https',
+        hostname: 'fracprop.pythonanywhere.com',
+        pathname: '/media/property_images/**',
+      },
     ],
   },
 };
