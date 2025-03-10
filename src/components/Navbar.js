@@ -85,6 +85,9 @@ const Navbar = () => {
                             className="w-8 h-8 rounded-full"
                             src={`https://ui-avatars.com/api/?name=${user?.first_name || 'User'}&background=random`}
                             alt="User profile"
+                            width={32}
+                            height={32}
+                            unoptimized // Disable Next.js image optimization
                         />
                     </button>
 
