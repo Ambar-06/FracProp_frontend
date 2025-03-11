@@ -269,21 +269,21 @@ const HomePage = () => {
                             <div className="p-4 bg-gray-50 rounded-lg">
                                 <div className="flex justify-between items-center mb-2">
                                     <p className="text-sm text-gray-600">Rental Assets</p>
-                                    <span className="text-xs text-green-500">70%</span>
+                                    <span className="text-xs text-green-500">{investmentData?.percentage_invested_in_rental_assests?.toLocaleString() || 0}%</span>
                                 </div>
                                 <p className="text-xl font-bold text-gray-900">₹{investmentData?.total_invested_in_rental_assests?.toLocaleString() || 0}</p>
                                 <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: '70%' }}></div>
+                                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: `${investmentData?.percentage_invested_in_rental_assests}%` }}></div>
                                 </div>
                             </div>
                             <div className="p-4 bg-gray-50 rounded-lg">
                                 <div className="flex justify-between items-center mb-2">
                                     <p className="text-sm text-gray-600">Non-Rental Assets</p>
-                                    <span className="text-xs text-green-500">30%</span>
+                                    <span className="text-xs text-green-500">{investmentData?.percentage_invested_in_non_rental_assests?.toLocaleString() || 0}%</span>
                                 </div>
                                 <p className="text-xl font-bold text-gray-900">₹{investmentData?.total_invested_in_non_rental_assests?.toLocaleString() || 0}</p>
                                 <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '30%' }}></div>
+                                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${investmentData?.percentage_invested_in_non_rental_assests}%` }}></div>
                                 </div>
                             </div>
                         </div>
