@@ -33,6 +33,7 @@ const Login = () => {
   // Add state for 2FA verification
   const [showTwoFactorModal, setShowTwoFactorModal] = useState(false)
   const [tempToken, setTempToken] = useState("")
+  const [tempData, settempData] = useState("")
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -92,6 +93,7 @@ const Login = () => {
       if (data.data.is_2fa_enabled) {
         // Store the token temporarily and show 2FA modal
         setTempToken(data.data.token)
+        settempData(data.data)
         setShowTwoFactorModal(true)
       } else {
         // No 2FA required, proceed with login
@@ -108,7 +110,8 @@ const Login = () => {
   // Handle successful 2FA verification
   const handleTwoFactorSuccess = () => {
     // Complete the login process with the token we already have
-    login({ token: tempToken })
+    // login({ token: tempToken })
+    login(tempData)
     setShowTwoFactorModal(false)
     router.push("/dashboard")
   }
