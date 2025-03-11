@@ -273,7 +273,7 @@ const HomePage = () => {
                                 </div>
                                 <p className="text-xl font-bold text-gray-900">₹{investmentData?.total_invested_in_rental_assests?.toLocaleString() || 0}</p>
                                 <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: `${investmentData?.percentage_invested_in_rental_assests}%` }}></div>
+                                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: `${investmentData?.percentage_invested_in_rental_assests || 0}%` }}></div>
                                 </div>
                             </div>
                             <div className="p-4 bg-gray-50 rounded-lg">
@@ -283,7 +283,7 @@ const HomePage = () => {
                                 </div>
                                 <p className="text-xl font-bold text-gray-900">₹{investmentData?.total_invested_in_non_rental_assests?.toLocaleString() || 0}</p>
                                 <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${investmentData?.percentage_invested_in_non_rental_assests}%` }}></div>
+                                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${investmentData?.percentage_invested_in_non_rental_assests || 0}%` }}></div>
                                 </div>
                             </div>
                         </div>
