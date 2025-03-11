@@ -27,7 +27,7 @@ const SettingsPage = () => {
       <Navbar />
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 pt-28 pb-16">
+      <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Settings</h1>
 
         {/* Settings Layout */}
@@ -125,6 +125,79 @@ const SecuritySettings = () => {
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // Add password change state
+  const [passwordData, setPasswordData] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
+  })
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [passwordSuccess, setPasswordSuccess] = useState(false)
+  const [passwordLoading, setPasswordLoading] = useState(false)
+
+  // Handle password input changes
+  const handlePasswordChange = (e) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value,
+    })
+    // Clear any previous errors when user types
+    setPasswordError(null)
+    setPasswordSuccess(false)
+  }
+
+  // Handle password form submission
+  const handleChangePassword = async (e) => {
+    e.preventDefault()
+
+    // Basic validation
+    if (!passwordData.current_password || !passwordData.new_password || !passwordData.confirm_password) {
+      setPasswordError("All fields are required")
+      return
+    }
+
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      setPasswordError("New passwords do not match")
+      return
+    }
+
+    setPasswordLoading(true)
+    setPasswordError(null)
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(passwordData),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        setPasswordSuccess(true)
+        // Clear form fields on success
+        setPasswordData({
+          current_password: "",
+          new_password: "",
+          confirm_password: "",
+        })
+      } else if (data.code === 400) {
+        setPasswordError(data.data || "Incorrect current password")
+      } else if (data.code === 422) {
+        setPasswordError(data.errors?.[0]?.message || "Validation failed")
+      } else {
+        setPasswordError(data.message || "Failed to change password")
+      }
+    } catch (err) {
+      setPasswordError("An error occurred. Please try again.")
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -176,13 +249,6 @@ const SecuritySettings = () => {
       setLoading(false)
     }
   }
-
-  // Reset OTP when QR code is fetched
-  useEffect(() => {
-    if (qrUrl) {
-      setOtp("")
-    }
-  }, [qrUrl])
 
   const activate2FA = async () => {
     setLoading(true)
@@ -307,10 +373,9 @@ const SecuritySettings = () => {
                 type="text"
                 placeholder="Enter 6-digit code"
                 value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
+                onChange={(e) => setOtp(e.target.value)}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 maxLength={6}
-                autoComplete="off"
               />
               <button
                 className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all"
@@ -345,11 +410,14 @@ const SecuritySettings = () => {
           <h3 className="text-lg font-medium text-gray-900 mb-2">Change Password</h3>
           <p className="text-gray-600 mb-4">Update your password to keep your account secure.</p>
 
-          <div className="space-y-4">
+          <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
               <input
                 type="password"
+                name="current_password"
+                value={passwordData.current_password}
+                onChange={handlePasswordChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Enter your current password"
               />
@@ -358,6 +426,9 @@ const SecuritySettings = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
               <input
                 type="password"
+                name="new_password"
+                value={passwordData.new_password}
+                onChange={handlePasswordChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Enter your new password"
               />
@@ -366,14 +437,43 @@ const SecuritySettings = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
               <input
                 type="password"
+                name="confirm_password"
+                value={passwordData.confirm_password}
+                onChange={handlePasswordChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Confirm your new password"
               />
             </div>
-            <button className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all">
-              Update Password
+
+            {/* Password Error Message */}
+            {passwordError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{passwordError}</p>
+              </div>
+            )}
+
+            {/* Password Success Message */}
+            {passwordSuccess && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-600 text-sm">Password changed successfully!</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={passwordLoading}
+              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all disabled:opacity-70"
+            >
+              {passwordLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Updating...
+                </div>
+              ) : (
+                "Update Password"
+              )}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>

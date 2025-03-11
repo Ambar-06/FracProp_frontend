@@ -4,6 +4,7 @@ import { useState } from "react"
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input"
 import "react-phone-number-input/style.css"
 import { useRouter } from "next/navigation"
+import TwoFactorModal from "@/components/TwoFactorModal"
 import { useAuth } from "@/context/AuthContext"
 import { Mail, User, Phone, Lock, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
@@ -28,6 +29,10 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  // Add state for 2FA verification
+  const [showTwoFactorModal, setShowTwoFactorModal] = useState(false)
+  const [tempToken, setTempToken] = useState("")
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -83,17 +88,35 @@ const Login = () => {
         throw new Error(data.message || data.data || "Login failed")
       }
 
-      login(data.data)
-      router.push("/dashboard")
-    }  catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
+      // Check if 2FA is required
+      if (data.data.is_2fa_enabled) {
+        // Store the token temporarily and show 2FA modal
+        setTempToken(data.data.token)
+        setShowTwoFactorModal(true)
       } else {
-        setError("An unknown error occurred");
+        // No 2FA required, proceed with login
+        login(data.data)
+        router.push("/dashboard")
       }
+    } catch (err) {
+      setError(err.message)
     } finally {
       setLoading(false)
     }
+  }
+
+  // Handle successful 2FA verification
+  const handleTwoFactorSuccess = () => {
+    // Complete the login process with the token we already have
+    login({ token: tempToken })
+    setShowTwoFactorModal(false)
+    router.push("/dashboard")
+  }
+
+  // Handle 2FA verification cancellation
+  const handleTwoFactorCancel = () => {
+    setShowTwoFactorModal(false)
+    setTempToken("")
   }
 
   return (
@@ -258,6 +281,11 @@ const Login = () => {
           </p>
         </form>
       </div>
+
+      {/* 2FA Verification Modal */}
+      {showTwoFactorModal && (
+        <TwoFactorModal token={tempToken} onSuccess={handleTwoFactorSuccess} onCancel={handleTwoFactorCancel} />
+      )}
     </div>
   )
 }
