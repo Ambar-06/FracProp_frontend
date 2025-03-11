@@ -28,7 +28,7 @@ const TwoFactorModal = ({ token, onSuccess, onCancel }: TwoFactorModalProps) => 
     setError(null)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/auth/verify-2fa`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/auth/2fa`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
