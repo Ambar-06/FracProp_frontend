@@ -2,7 +2,8 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Building, Home, DollarSign, Shield, Users, ChevronDown } from "lucide-react"
+import { ArrowRight, Building, DollarSign, Shield, Users, ChevronDown, Heart, Star } from "lucide-react"
+import { useState } from "react"
 
 export default function LandingPage() {
   return (
@@ -20,19 +21,19 @@ export default function LandingPage() {
               <div className="ml-10 flex items-center space-x-4">
                 <Link
                   href="#how-it-works"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   How It Works
                 </Link>
                 <Link
                   href="#investments"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Investments
                 </Link>
                 <Link
                   href="#faq"
-                  className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   FAQ
                 </Link>
@@ -41,7 +42,7 @@ export default function LandingPage() {
             <div className="flex items-center space-x-3">
               <Link
                 href="/login"
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium hidden md:block"
+                className="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium hidden md:block"
               >
                 Login
               </Link>
@@ -102,8 +103,32 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Trust Section */}
+      {/* Stats Section */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="bg-white p-6 rounded-xl shadow-md">
+              <p className="text-4xl font-bold gradient-text mb-2">₹500Cr+</p>
+              <p className="text-gray-600">Properties Listed</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md">
+              <p className="text-4xl font-bold gradient-text mb-2">15,000+</p>
+              <p className="text-gray-600">Active Investors</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md">
+              <p className="text-4xl font-bold gradient-text mb-2">12%</p>
+              <p className="text-gray-600">Avg. Annual Returns</p>
+            </div>
+            <div className="bg-white p-6 rounded-xl shadow-md">
+              <p className="text-4xl font-bold gradient-text mb-2">₹1,000</p>
+              <p className="text-gray-600">Min. Investment</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-xl font-semibold text-gray-700 text-center mb-8">
             Trusted by thousands of investors across India
@@ -126,12 +151,13 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-16 px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">How It Works</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Investing in real estate has never been easier. Follow these simple steps to start building your portfolio.
+              Investing in real estate has never been easier. Follow these simple steps to start building your
+              portfolio.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -143,6 +169,13 @@ export default function LandingPage() {
               <p className="text-gray-600">
                 Create your account in minutes. Verify your identity and you're ready to start investing.
               </p>
+              <Image
+                src="/placeholder.svg?height=150&width=300"
+                alt="Sign Up Process"
+                width={300}
+                height={150}
+                className="mt-4 rounded-lg w-full object-cover"
+              />
             </div>
             <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
@@ -152,6 +185,13 @@ export default function LandingPage() {
               <p className="text-gray-600">
                 Browse our curated selection of high-quality properties and invest in the ones that match your goals.
               </p>
+              <Image
+                src="/placeholder.svg?height=150&width=300"
+                alt="Property Selection"
+                width={300}
+                height={150}
+                className="mt-4 rounded-lg w-full object-cover"
+              />
             </div>
             <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6">
@@ -161,13 +201,20 @@ export default function LandingPage() {
               <p className="text-gray-600">
                 Start earning rental income and benefit from property appreciation as your investment grows.
               </p>
+              <Image
+                src="/placeholder.svg?height=150&width=300"
+                alt="Earning Returns"
+                width={300}
+                height={150}
+                className="mt-4 rounded-lg w-full object-cover"
+              />
             </div>
           </div>
         </div>
       </section>
 
       {/* Investment Opportunities */}
-      <section id="investments" className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section id="investments" className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">Featured Investment Opportunities</h2>
@@ -183,6 +230,9 @@ export default function LandingPage() {
                 roi: "10% p.a.",
                 price: "₹50,00,000",
                 minInvestment: "₹10,000",
+                sold: 65,
+                rating: 4.5,
+                images: ["/placeholder.svg?height=240&width=400"],
               },
               {
                 title: "Commercial Office Space",
@@ -190,6 +240,9 @@ export default function LandingPage() {
                 roi: "12% p.a.",
                 price: "₹1,20,00,000",
                 minInvestment: "₹25,000",
+                sold: 42,
+                rating: 4.8,
+                images: ["/placeholder.svg?height=240&width=400"],
               },
               {
                 title: "Retail Store",
@@ -197,48 +250,12 @@ export default function LandingPage() {
                 roi: "9% p.a.",
                 price: "₹75,00,000",
                 minInvestment: "₹15,000",
+                sold: 78,
+                rating: 4.2,
+                images: ["/placeholder.svg?height=240&width=400"],
               },
             ].map((property, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl"
-              >
-                <div className="h-48 bg-gray-200 relative">
-                  <Image
-                    src={`/placeholder.svg?height=200&width=400`}
-                    alt={property.title}
-                    width={400}
-                    height={200}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-4 left-4 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    Featured
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{property.title}</h3>
-                  <p className="text-gray-600 text-sm mb-4 flex items-center">
-                    <Home size={14} className="mr-1" />
-                    {property.location}
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                      <p className="text-xs text-gray-500">Expected ROI</p>
-                      <p className="text-lg font-bold text-purple-600">{property.roi}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">Min Investment</p>
-                      <p className="text-lg font-bold text-gray-900">{property.minInvestment}</p>
-                    </div>
-                  </div>
-                  <Link
-                    href="/signup"
-                    className="block w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white py-2 px-4 rounded-lg text-center hover:shadow-lg transition-all"
-                  >
-                    Invest Now
-                  </Link>
-                </div>
-              </div>
+              <PropertyCard key={index} property={property} />
             ))}
           </div>
           <div className="text-center mt-10">
@@ -253,7 +270,7 @@ export default function LandingPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">Why Choose FracProp</h2>
@@ -319,7 +336,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">Frequently Asked Questions</h2>
@@ -483,6 +500,7 @@ export default function LandingPage() {
                   <path
                     fillRule="evenodd"
                     d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058z"
+                    clipRule="evenodd"
                   />
                 </svg>
               </Link>
@@ -491,5 +509,142 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  );
+  )
 }
+
+// Property Card Component that matches the style from explore-properties page
+const PropertyCard = ({ property }) => {
+  const [isInWishlist, setIsInWishlist] = useState(false)
+  const [currentImage, setCurrentImage] = useState(0)
+  const images = property.images || ["/placeholder.svg?height=240&width=400"]
+
+  const nextImage = (e) => {
+    e.stopPropagation()
+    setCurrentImage((prev) => (prev + 1) % images.length)
+  }
+
+  const prevImage = (e) => {
+    e.stopPropagation()
+    setCurrentImage((prev) => (prev - 1 + images.length) % images.length)
+  }
+
+  const handleWishlistClick = (e) => {
+    e.stopPropagation()
+    setIsInWishlist(!isInWishlist)
+  }
+
+  return (
+    <div className="gradient-card bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 transform transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl group">
+      <Link href="/signup">
+        <div className="relative w-full h-60">
+          <Image
+            src={images[currentImage] || "/placeholder.svg"}
+            alt={property.title}
+            width={400}
+            height={240}
+            className="object-cover w-full h-full"
+          />
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={prevImage}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ArrowRight size={16} className="rotate-180" />
+              </button>
+              <button
+                onClick={nextImage}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <ArrowRight size={16} />
+              </button>
+            </>
+          )}
+          {/* Heart Button */}
+          <button
+            onClick={handleWishlistClick}
+            className="absolute top-3 right-3 bg-black bg-opacity-50 p-2 rounded-full text-white hover:bg-opacity-70 transition-all"
+          >
+            <Heart className={`h-5 w-5 ${isInWishlist ? "fill-current text-red-500" : ""}`} />
+          </button>
+
+          {/* Property Type Badge */}
+          <div className="absolute top-3 left-3 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+            Featured
+          </div>
+        </div>
+      </Link>
+
+      <div className="p-5">
+        <Link href="/signup">
+          <h3 className="text-xl font-bold text-gray-900 mb-1 hover:text-purple-600 transition-colors">
+            {property.title}
+          </h3>
+        </Link>
+        <p className="text-gray-600 text-sm mb-3 flex items-center">
+          <Building size={14} className="mr-1" />
+          {property.location}
+        </p>
+
+        {/* Rating */}
+        {property.rating && (
+          <div className="flex items-center mb-3">
+            <div className="flex">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  size={16}
+                  className={`${i < Math.round(property.rating) ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+                />
+              ))}
+            </div>
+            <span className="text-gray-600 ml-2 text-sm">{property.rating.toFixed(1)}</span>
+          </div>
+        )}
+
+        {/* Sold Percentage */}
+        <div className="mb-4">
+          <div className="flex justify-between text-sm mb-1">
+            <span className="text-gray-500">Sold</span>
+            <span className="text-gray-900 font-medium">{property.sold}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-gradient-to-r from-purple-600 to-blue-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${property.sold}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Investment Details */}
+        <div className="bg-gray-100 rounded-lg p-3 mb-4">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <p className="text-xs text-gray-500">Expected ROI</p>
+              <p className="text-sm font-bold text-purple-600">{property.roi}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Min Investment</p>
+              <p className="text-sm font-bold text-gray-900">{property.minInvestment}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-2">
+          <Link href="/signup" className="flex-1">
+            <button className="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all">
+              Invest Now
+            </button>
+          </Link>
+          <Link href="/signup" className="flex-1">
+            <button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg transition-colors">
+              Details
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
