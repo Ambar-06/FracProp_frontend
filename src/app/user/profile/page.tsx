@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Navbar from "@/components/Navbar"
 import PhoneInput, { parsePhoneNumber, getCountryCallingCode } from "react-phone-number-input"
 import "react-phone-number-input/style.css"
-import { User, Mail, Phone, Check, AlertCircle } from "lucide-react"
+import { User, Mail, Phone, Check, AlertCircle, X } from "lucide-react"
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null)
@@ -13,6 +13,11 @@ const Profile = () => {
   const [error, setError] = useState(null)
   const [formData, setFormData] = useState({ phone_number: undefined, country_code: "" }) // Initialize phone_number as undefined
   const [successMessage, setSuccessMessage] = useState("")
+  // Add these new state variables
+  const [showOtpModal, setShowOtpModal] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [otpError, setOtpError] = useState("")
+  const [otpLoading, setOtpLoading] = useState(false)
 
   // Function to convert country calling code (+91) to ISO Alpha-2 code (IN)
   const getCountryFromCode = (code) => {
@@ -84,24 +89,87 @@ const Profile = () => {
   const handleVerifyEmail = async () => {
     try {
       setLoading(true)
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/verify-email`, {
+      setError(null)
+      setSuccessMessage("")
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/send-email-otp`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ email: formData.email }),
       })
 
-      if (res.ok) {
-        setSuccessMessage("Verification email sent! Please check your inbox.")
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setSuccessMessage("OTP sent to your email. Please check your inbox.")
+        setShowOtpModal(true)
       } else {
-        setError("Failed to send verification email. Please try again.")
+        setError(data.message || "Failed to send verification email. Please try again.")
       }
     } catch (err) {
       setError("An error occurred. Please try again.")
     } finally {
       setLoading(false)
     }
+  }
+
+  // Add this new function to handle OTP verification
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault()
+
+    if (!otp || otp.length < 4) {
+      setOtpError("Please enter a valid OTP")
+      return
+    }
+
+    try {
+      setOtpLoading(true)
+      setOtpError("")
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/verify-email`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ otp }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setSuccessMessage("Email verified successfully!")
+        setShowOtpModal(false)
+        setOtp("")
+
+        // Update the profile data to reflect verified status
+        setProfileData({
+          ...profileData,
+          is_email_verified: true,
+        })
+
+        setFormData({
+          ...formData,
+          is_email_verified: true,
+        })
+      } else {
+        setOtpError(data.message || "Invalid OTP. Please try again.")
+      }
+    } catch (err) {
+      setOtpError("An error occurred. Please try again.")
+    } finally {
+      setOtpLoading(false)
+    }
+  }
+
+  // Add this function to close the OTP modal
+  const closeOtpModal = () => {
+    setShowOtpModal(false)
+    setOtp("")
+    setOtpError("")
   }
 
   const handleVerifyPhone = async () => {
@@ -395,6 +463,56 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      {showOtpModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
+            <button onClick={closeOtpModal} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+              <X size={20} />
+            </button>
+
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Verify Your Email</h3>
+            <p className="text-gray-600 mb-6">Please enter the verification code sent to your email address.</p>
+
+            {otpError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{otpError}</div>
+            )}
+
+            <form onSubmit={handleVerifyOtp}>
+              <div className="mb-4">
+                <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
+                  Verification Code
+                </label>
+                <input
+                  type="text"
+                  id="otp"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="Enter OTP"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  maxLength={6}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={closeOtpModal}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={otpLoading}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                >
+                  {otpLoading ? "Verifying..." : "Verify"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
