@@ -35,6 +35,13 @@ const Login = () => {
   const [tempToken, setTempToken] = useState("")
   const [tempData, settempData] = useState("")
 
+  // Add state for forgot password modal
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false)
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("")
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false)
+  const [forgotPasswordSuccess, setForgotPasswordSuccess] = useState(false)
+  const [forgotPasswordError, setForgotPasswordError] = useState(null)
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
@@ -54,6 +61,40 @@ const Login = () => {
   }
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev)
+
+  // Add function to handle forgot password request
+  const handleForgotPassword = async (e) => {
+    e.preventDefault()
+    setForgotPasswordLoading(true)
+    setForgotPasswordError(null)
+    setForgotPasswordSuccess(false)
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}user/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: forgotPasswordEmail,
+          reset_password_url: `${window.location.origin}/reset-password`,
+        }),
+      })
+      const data = await res.json()
+
+      if (!res.ok && data.errors === "Email is not verified") {
+        throw new Error("Your email is not verified. Please contact support for assistance. (support@fracprop.in)")
+      }
+
+      if (data.code === 400 && data.data === "Email is not verified") {
+        throw new Error("Your email is not verified. Please contact support for assistance.")
+      }
+
+      setForgotPasswordSuccess(true)
+    } catch (err) {
+      setForgotPasswordError(err.message)
+    } finally {
+      setForgotPasswordLoading(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -86,7 +127,7 @@ const Login = () => {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.message || data.data || "Login failed")
+        throw new Error(data.message || data.errors || "Login failed")
       }
 
       // Check if 2FA is required
@@ -255,9 +296,13 @@ const Login = () => {
               </label>
             </div>
             <div className="text-sm">
-              <a href="#" className="font-medium text-purple-600 hover:text-purple-500">
+              <button
+                type="button"
+                onClick={() => setShowForgotPasswordModal(true)}
+                className="font-medium text-purple-600 hover:text-purple-500"
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
           </div>
 
@@ -284,6 +329,80 @@ const Login = () => {
           </p>
         </form>
       </div>
+
+      {showForgotPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Reset Password</h3>
+
+            {forgotPasswordSuccess ? (
+              <div className="text-center py-4">
+                <div className="mb-4 text-green-600">
+                  <svg
+                    className="w-16 h-16 mx-auto"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-gray-700 mb-4">Password reset link has been sent to your email.</p>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPasswordModal(false)}
+                  className="w-full py-2 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+
+                {forgotPasswordError && (
+                  <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{forgotPasswordError}</div>
+                )}
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPasswordModal(false)}
+                    className="flex-1 py-2 px-4 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotPasswordLoading}
+                    className="flex-1 py-2 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg disabled:opacity-70"
+                  >
+                    {forgotPasswordLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        Sending...
+                      </div>
+                    ) : (
+                      "Send Reset Link"
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 2FA Verification Modal */}
       {showTwoFactorModal && (

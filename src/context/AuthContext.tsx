@@ -27,11 +27,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
-
-      if (["/login", "/signup", "/"].includes(pathname)) {
+      console.log(pathname)
+      if (["/login", "/signup", "/", "/reset-password"].includes(pathname)) {
         router.push("/dashboard");
       }
-    } else if (!storedToken && !["/login", "/signup", "/"].includes(pathname)) {
+    } else if (!storedToken && !["/login", "/signup", "/", "/reset-password"].includes(pathname)) {
       router.push("/login");
     }
     
