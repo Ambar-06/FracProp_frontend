@@ -15,6 +15,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const ignorePaths = ["/login", "/signup", "/", "/reset-password", "/careers", "/public/blogs", "/public/contact-us", "/team", "/about-us"];
 
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (["/login", "/signup", "/", "/reset-password"].includes(pathname)) {
         router.push("/dashboard");
       }
-    } else if (!storedToken && !["/login", "/signup", "/", "/reset-password"].includes(pathname)) {
+    } else if (!storedToken && !ignorePaths.includes(pathname)) {
       router.push("/login");
     }
     

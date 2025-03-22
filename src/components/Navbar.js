@@ -48,7 +48,7 @@ const Navbar = () => {
         <nav className="bg-white dark:bg-gray-900 fixed top-4 left-4 right-4 z-50 shadow-lg p-4 rounded-2xl">
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto">
                 <Link href="/" className="flex items-center space-x-3">
-                    <Image src="/fp_logo.png" alt="FracProp" className="h-10" />
+                    <img src="/fp_logo.png" alt="FracProp" className="h-10" />
                 </Link>
 
                 {isDesktop && (
@@ -88,7 +88,7 @@ const Navbar = () => {
                             width={32}
                             height={32}
                             unoptimized // Disable Next.js image optimization
-                        />
+                            />
                     </button>
 
                     {isUserMenuOpen && (
