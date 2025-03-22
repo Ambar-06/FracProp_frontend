@@ -96,6 +96,12 @@ const EditProperty = () => {
       setFormData({
         ...data.data,
         delete_images: [], // Initialize delete_images in formData
+        amenities: data.data.amenities || {
+          school: { available: false, distance_in_km: 0 },
+          hospital: { available: false, distance_in_km: 0 },
+          shopping_mall: { available: false, distance_in_km: 0 },
+          park: { available: false, distance_in_km: 0 },
+        }
       })
     } catch (error) {
       console.error("Error fetching property:", error)
@@ -898,7 +904,8 @@ const EditProperty = () => {
             <div>
               <h2 className="text-2xl font-bold mb-6 text-gray-800">Nearby Amenities</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Object.keys(formData.amenities).map((amenity) => (
+              {formData.amenities && Object.keys(formData.amenities).map((amenity) => (
+                // {Object.keys(formData.amenities).map((amenity) => (
                   <div
                     key={amenity}
                     className="bg-gray-50 p-5 rounded-lg border border-gray-200 hover:border-purple-200 transition-all"

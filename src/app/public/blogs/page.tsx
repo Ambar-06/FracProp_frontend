@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import OpenNavbar from "@/components/OpenNavbar"
-import { Book, Calendar, Search, Tag, ArrowRight, ChevronDown, Filter } from "lucide-react"
+import { Book, Calendar, Search, Tag, ArrowRight, ChevronDown, Filter, User } from "lucide-react"
 import { motion } from "framer-motion"
 
 const OpenBlogs = () => {
@@ -14,11 +14,26 @@ const OpenBlogs = () => {
   const [activeCategory, setActiveCategory] = useState("all")
   const [sortBy, setSortBy] = useState("recent")
 
+  // Define blog type to match API response
+  type Blog = {
+    uuid: string
+    title: string
+    content: string
+    created_at: string
+    updated_at: string
+    is_deleted: boolean
+    time_to_read_in_minutes?: number
+    author?: number
+    category?: string
+    tags?: string[]
+    featured_image?: string
+  }
+
   // Fetch all blog posts
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        // Replace with your open blogs API endpoint
+        // Fetch blogs from the API
         const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}beacon/public/blogs/`, {
           method: "GET",
         })
@@ -27,7 +42,30 @@ const OpenBlogs = () => {
 
         const data = await res.json()
         if (data.success) {
-          setBlogs(data.data)
+          // Process the blog data to add missing properties
+          const processedBlogs = data.data.map((blog) => {
+            // Extract a category from the content or title (simplified approach)
+            const categoryMatch = blog.title.match(/Investment|Strategy|Market|Legal|Property|Finance/i)
+            const category = categoryMatch ? categoryMatch[0] : "General"
+
+            // Extract tags from content (simplified approach)
+            const tagMatches = blog.content.match(
+              /Real Estate|Investment|Property|Market|India|Growth|Economy|Housing/gi,
+            )
+            const tags = tagMatches ? [...new Set(tagMatches)] : ["Real Estate"]
+
+            // Create a featured image placeholder
+            const featured_image = "/placeholder.svg?height=400&width=600"
+
+            return {
+              ...blog,
+              category,
+              tags,
+              featured_image,
+            }
+          })
+
+          setBlogs(processedBlogs)
         } else {
           setError("Failed to fetch blogs.")
         }
@@ -109,24 +147,25 @@ const OpenBlogs = () => {
     // }, 1000)
 
     // Uncomment this when API is ready
+    // fetchBlogs()
     fetchBlogs()
   }, [])
 
   // Filter blogs based on search query and category
-  const filteredBlogs = blogs.filter(blog => {
-    const matchesSearch = 
+  const filteredBlogs = blogs.filter((blog) => {
+    const matchesSearch =
       blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       blog.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      blog.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    
-    const matchesCategory = activeCategory === 'all' || blog.category === activeCategory
-    
+      blog.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+
+    const matchesCategory = activeCategory === "all" || blog.category === activeCategory
+
     return matchesSearch && matchesCategory
   })
 
   // Sort blogs
   const sortedBlogs = [...filteredBlogs].sort((a, b) => {
-    if (sortBy === 'recent') {
+    if (sortBy === "recent") {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     } else {
       // Alphabetical
@@ -135,15 +174,15 @@ const OpenBlogs = () => {
   })
 
   // Get unique categories
-  const categories = ['all', ...new Set(blogs.map(blog => blog.category))]
+  const categories = ["all", ...new Set(blogs.map((blog) => blog.category))]
 
   // Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     })
   }
 
@@ -153,14 +192,14 @@ const OpenBlogs = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   }
 
   if (loading)
@@ -229,7 +268,10 @@ const OpenBlogs = () => {
                   <option value="recent">Most Recent</option>
                   <option value="alphabetical">Alphabetical</option>
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                <ChevronDown
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  size={16}
+                />
               </div>
               <button className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                 <Filter size={20} />
@@ -245,11 +287,11 @@ const OpenBlogs = () => {
                 onClick={() => setActiveCategory(category)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   activeCategory === category
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    ? "bg-purple-600 text-white"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                 }`}
               >
-                {category === 'all' ? 'All Categories' : category}
+                {category === "all" ? "All Categories" : category}
               </button>
             ))}
           </div>
@@ -257,7 +299,7 @@ const OpenBlogs = () => {
 
         {/* Blog Posts */}
         {sortedBlogs.length > 0 ? (
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={containerVariants}
             initial="hidden"
@@ -286,19 +328,19 @@ const OpenBlogs = () => {
                 <div className="p-6">
                   <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 mb-2">
                     <Book size={16} />
-                    <span className="text-sm font-medium">Article</span>
+                    <span className="text-sm font-medium">
+                      {blog.time_to_read_in_minutes ? `${blog.time_to_read_in_minutes} min read` : "Article"}
+                    </span>
                   </div>
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    <Link href={`/login?redirect=/blog/${blog.uuid}`}>
-                      {blog.title}
-                    </Link>
+                    <Link href={`/login?redirect=/blog/${blog.uuid}`}>{blog.title}</Link>
                   </h2>
                   <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">{blog.content}</p>
-                  
+
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {blog.tags.map((tag, index) => (
-                      <span 
+                      <span
                         key={index}
                         className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
                       >
@@ -307,7 +349,14 @@ const OpenBlogs = () => {
                       </span>
                     ))}
                   </div>
-                  
+
+                  {blog.author && (
+                    <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mt-2">
+                      <User size={14} className="mr-1" />
+                      <span>Author #{blog.author}</span>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
                     <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
                       <Calendar size={14} className="mr-1" />
@@ -444,7 +493,7 @@ const OpenBlogs = () => {
               <Link href="#" className="text-gray-400 hover:text-white transition-colors">
                 <span className="sr-only">Instagram</span>
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path
+                  <path
                     fillRule="evenodd"
                     d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.903 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.023.047 1.351.058 3.807.058h.468c2.456 0 2.784-.011 3.807-.058.975-.045 1.504-.207 1.857-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.047-1.023.058-1.351.058-3.807v-.468c0-2.456-.011-2.784-.058-3.807-.045-.975-.207-1.504-.344-1.857a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"
                     clipRule="evenodd"
