@@ -15,7 +15,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const ignorePaths = ["/login", "/signup", "/", "/reset-password", "/careers", "/public/blogs", "/public/contact-us", "/team", "/about-us"];
+  const ignorePaths = ["/login", "/signup", "/", "/reset-password", "/careers", "/public/blogs", "/public/contact-us", "/team", "/about-us", "/public/blogs/*"];
 
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
