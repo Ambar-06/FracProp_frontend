@@ -43,13 +43,13 @@ const OpenContactUs = () => {
                   <div className="ml-4">
                     <h3 className="text-lg font-medium text-gray-800 dark:text-white">Email</h3>
                     <p className="mt-1 text-gray-600 dark:text-gray-300">
-                      <a href="mailto:info@fracprop.com" className="hover:text-purple-600 transition-colors">
-                        info@fracprop.com
+                      <a href="mailto:info@fracprop.in" className="hover:text-purple-600 transition-colors">
+                        info@fracprop.in
                       </a>
                     </p>
                     <p className="mt-1 text-gray-600 dark:text-gray-300">
-                      <a href="mailto:support@fracprop.com" className="hover:text-purple-600 transition-colors">
-                        support@fracprop.com
+                      <a href="mailto:support@fracprop.in" className="hover:text-purple-600 transition-colors">
+                        support@fracprop.in
                       </a>
                     </p>
                   </div>

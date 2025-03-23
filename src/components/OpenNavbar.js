@@ -15,7 +15,7 @@ const OpenNavbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold gradient-text">FracProp</span>
+              <img src="/fp_logo.png" alt="FracProp" className="h-10" />
             </Link>
           </div>
           <div className="hidden md:flex items-center space-x-6">

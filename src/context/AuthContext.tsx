@@ -15,11 +15,36 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const ignorePaths = ["/login", "/signup", "/", "/reset-password", "/careers", "/public/blogs", "/public/contact-us", "/team", "/about-us", "/public/blogs/:id"];
+
+  // Define ignorePaths with a regular expression for dynamic paths
+  const ignorePaths = [
+    "/login",
+    "/signup",
+    "/",
+    "/reset-password",
+    "/careers",
+    "/public/blogs",
+    "/public/contact-us",
+    "/team",
+    "/about-us",
+    /^\/public\/blogs\/[a-f0-9-]+$/, // Matches /public/blogs/{uuid}
+  ];
 
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Helper function to check if a path should be ignored
+  const isPathIgnored = (path: string) => {
+    return ignorePaths.some((pattern) => {
+      if (typeof pattern === "string") {
+        return path === pattern;
+      } else if (pattern instanceof RegExp) {
+        return pattern.test(path);
+      }
+      return false;
+    });
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -28,14 +53,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
-      console.log(pathname)
+
+      // Redirect to dashboard if user is logged in and on an auth-related page
       if (["/login", "/signup", "/", "/reset-password"].includes(pathname)) {
         router.push("/dashboard");
       }
-    } else if (!storedToken && !ignorePaths.includes(pathname)) {
+    } else if (!storedToken && !isPathIgnored(pathname)) {
+      // Redirect to login if user is not logged in and the path is not ignored
       router.push("/login");
     }
-    
+
     setLoading(false);
   }, [pathname, router]);
 
