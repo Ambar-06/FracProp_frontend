@@ -333,7 +333,7 @@ const OpenBlogs = () => {
                     </span>
                   </div>
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                    <Link href={`/login?redirect=/blog/${blog.uuid}`}>{blog.title}</Link>
+                    <Link href={`/public/blogs/${blog.uuid}`}>{blog.title}</Link>
                   </h2>
                   <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-3">{blog.content}</p>
 
@@ -363,7 +363,7 @@ const OpenBlogs = () => {
                       <span>{formatDate(blog.created_at)}</span>
                     </div>
                     <Link
-                      href={`/login?redirect=/blog/${blog.uuid}`}
+                      href={`/public/blogs/${blog.uuid}`}
                       className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium text-sm flex items-center"
                     >
                       Read More <ArrowRight size={14} className="ml-1" />
