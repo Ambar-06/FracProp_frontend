@@ -349,30 +349,30 @@ export default function LandingPage() {
       </section>
 
       {/* Trust Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
+      {/* <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 text-center mb-8">
             Our Partners
           </h2>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
-            <div className="rounded flex items-center justify-center">
+            <div className="rounded flex items-center justify-center"> */}
               {/* <span className="text-gray-500 dark:text-gray-400 font-medium">Partner 1</span> */}
               {/* <Image src="/GeckoTech_slim_no_bg.png" alt="FracProp" className="" height={240} /> */}
-              <Image src={"/GeckoTech_slim_no_bg.png"} alt={"GeckoTech IT Solutions"} className="object-cover w-full h-full" height={120} width={120} />
+              {/* <Image src={"/GeckoTech_slim_no_bg.png"} alt={"GeckoTech IT Solutions"} className="object-cover w-full h-full" height={120} width={120} />
             </div>
-            <div className="rounded flex items-center justify-center">
+            <div className="rounded flex items-center justify-center"> */}
               {/* <span className="text-gray-500 dark:text-gray-400 font-medium">Partner 2</span> */}
-              <Image src={"/siberal.png"} alt={"Siberal Tech"} className="object-cover w-full h-full" height={120} width={120} />
-            </div>
+              {/* <Image src={"/siberal.png"} alt={"Siberal Tech"} className="object-cover w-full h-full" height={120} width={120} />
+            </div> */}
             {/* <div className="w-24 h-12 bg-white dark:bg-gray-800 rounded flex items-center justify-center shadow-sm">
               <span className="text-gray-500 dark:text-gray-400 font-medium">Partner 3</span>
             </div>
             <div className="w-24 h-12 bg-white dark:bg-gray-800 rounded flex items-center justify-center shadow-sm">
               <span className="text-gray-500 dark:text-gray-400 font-medium">Partner 4</span>
             </div> */}
-          </div>
+          {/* </div>
         </div>
-      </section>
+      </section> */}
 
       {/* How It Works */}
       <section id="how-it-works" className="py-16 px-4 sm:px-6 lg:px-8 bg-white dark:bg-black">
