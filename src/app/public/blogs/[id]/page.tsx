@@ -96,7 +96,7 @@ const OpenBlogDetailPage = () => {
             <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg max-w-md">
               <p className="text-red-500 dark:text-red-400 text-center">{error || "Blog post not found"}</p>
               <button
-                onClick={() => router.push("/open-blogs")}
+                onClick={() => router.push("/public/blogs")}
                 className="mt-4 w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md transition-all"
               >
                 Back to Blogs
